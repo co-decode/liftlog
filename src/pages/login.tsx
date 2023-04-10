@@ -73,7 +73,7 @@ export default function LoginPage() {
             {/* OAuth Buttons */}
             <button 
               className="btn btn-secondary w-full"
-              onClick={() => signIn("github")}
+              onClick={() => signIn()}
             >
               Log In with GitHub
             </button>
