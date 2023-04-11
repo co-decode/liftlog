@@ -59,6 +59,7 @@ export const authOptions: NextAuthOptions = {
         const emailParams = new EmailParams()
           .setFrom(sentFrom)
           .setTo(recipients)
+          .setReplyTo(sentFrom)
           .setSubject("LiftLog Authentication")
           .setHtml("<strong>Welcome to LiftLog!</strong>")
           .setText("Thank you for using LiftLog");
