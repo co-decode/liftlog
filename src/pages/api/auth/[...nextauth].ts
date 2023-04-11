@@ -6,12 +6,6 @@ import { prisma } from "../../../server/prisma"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 
-const mailerSend = new MailerSend({
-    apiKey: process.env.MAILERSEND_API_TOKEN,
-})
-
-
-
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -54,6 +48,10 @@ export const authOptions: NextAuthOptions = {
       async sendVerificationRequest({
         identifier, url, provider
       }) {
+        const mailerSend = new MailerSend({
+          apiKey: process.env.MAILERSEND_API_TOKEN,
+        })
+        console.log(process.env.MAILERSEND_API_TOKEN)
         const recipients = [new Recipient(identifier, "LiftLog User")]
         const sentFrom = new Sender(process.env.EMAIL_FROM, "LiftLog")
         const emailParams = new EmailParams()
@@ -64,13 +62,9 @@ export const authOptions: NextAuthOptions = {
           .setHtml("<strong>Welcome to LiftLog!</strong>")
           .setText("Thank you for using LiftLog");
           
-        console.log(identifier,sentFrom, url, provider)
-        try {
-          await mailerSend.email.send(emailParams)
-        }
-        catch {
-          console.error("MailerSend failed to send an email")
-        }
+        mailerSend.email.send(emailParams)
+          .then((response) => console.log(response))
+          .catch((error) => console.log(error))
       },
     }),
     GithubProvider({
