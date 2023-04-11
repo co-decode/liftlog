@@ -52,7 +52,7 @@ export const authOptions: NextAuthOptions = {
       },
       from: process.env.EMAIL_FROM,
       async sendVerificationRequest({
-        identifier
+        identifier, url, provider
       }) {
         const recipients = [new Recipient(identifier, "LiftLog User")]
         const sentFrom = new Sender(process.env.EMAIL_FROM, "LiftLog")
@@ -63,6 +63,7 @@ export const authOptions: NextAuthOptions = {
           .setHtml("<strong>Welcome to LiftLog!</strong>")
           .setText("Thank you for using LiftLog");
           
+        console.log(identifier,sentFrom, url, provider)
         try {
           await mailerSend.email.send(emailParams)
         }
