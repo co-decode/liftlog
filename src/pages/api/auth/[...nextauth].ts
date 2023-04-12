@@ -88,6 +88,7 @@ export const authOptions: NextAuthOptions = {
     colorScheme: "auto",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug:true,
 }
 
 export default NextAuth(authOptions)
