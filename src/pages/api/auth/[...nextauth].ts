@@ -1,5 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import GithubProvider from "next-auth/providers/github"
+import NetlifyProvider from "next-auth/providers/netlify"
 import CredentialsProvider from "next-auth/providers/credentials"
 import EmailProvider from "next-auth/providers/email"
 import { prisma } from "../../../server/prisma"
@@ -8,6 +9,9 @@ import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. "Sign in with...")
@@ -46,7 +50,7 @@ export const authOptions: NextAuthOptions = {
       },
       from: process.env.EMAIL_FROM,
       async sendVerificationRequest(params) {
-        const { identifier, url, provider, theme } = params
+        const { identifier, url } = params
         const { host } = new URL(url)
         const mailerSend = new MailerSend({
           apiKey: process.env.MAILERSEND_API_TOKEN,
@@ -69,6 +73,10 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
+    }),
+    NetlifyProvider({
+      clientId: process.env.NETLIFY_ID,
+      clientSecret: process.env.NETLIFY_SECRET,
     }),
   ],
   theme: {
