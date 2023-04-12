@@ -10,7 +10,7 @@ import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "jwt",
+    strategy: "database",
   },
   providers: [
     CredentialsProvider({
