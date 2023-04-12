@@ -77,6 +77,9 @@ export const authOptions: NextAuthOptions = {
     NetlifyProvider({
       clientId: process.env.NETLIFY_ID,
       clientSecret: process.env.NETLIFY_SECRET,
+      authorization: {
+        params: { scope: "user" }
+      },
     }),
   ],
   theme: {
