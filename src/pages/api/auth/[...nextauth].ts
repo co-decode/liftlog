@@ -3,15 +3,21 @@ import GithubProvider from "next-auth/providers/github"
 import NetlifyProvider from "next-auth/providers/netlify"
 import CredentialsProvider from "next-auth/providers/credentials"
 import EmailProvider from "next-auth/providers/email"
-import { prisma } from "../../../server/prisma"
+import { prisma }  from "../../../server/prisma"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
+import { AdapterAccount } from "next-auth/adapters"
 
+const adapter = {
+  ...PrismaAdapter(prisma),
+  linkAccount: ({ ok, state, ...data }: any) => { console.log("linkAccount call: ", data); prisma.account.create({ data })}
+}
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "database",
   },
+
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. "Sign in with...")
