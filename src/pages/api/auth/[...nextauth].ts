@@ -6,14 +6,14 @@ import EmailProvider from "next-auth/providers/email"
 import { prisma }  from "../../../server/prisma"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
-import { AdapterAccount } from "next-auth/adapters"
+import { Adapter, AdapterAccount } from "next-auth/adapters"
 
 const adapter = {
   ...PrismaAdapter(prisma),
   linkAccount: ({ ok, state, ...data }: any) => { console.log("linkAccount call: ", data); prisma.account.create({ data })}
-}
+} as Adapter
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter,
   session: {
     strategy: "database",
   },
