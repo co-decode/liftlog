@@ -15,7 +15,7 @@ const adapter = {
 export const authOptions: NextAuthOptions = {
   adapter,
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
 
   providers: [
