@@ -73,10 +73,12 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     NetlifyProvider({
       clientId: process.env.NETLIFY_ID,
       clientSecret: process.env.NETLIFY_SECRET,
+      allowDangerousEmailAccountLinking: true,
       authorization: {
         params: { scope: "user" }
       },
