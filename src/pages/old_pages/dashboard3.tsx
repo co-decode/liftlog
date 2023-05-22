@@ -1,10 +1,11 @@
+"use client"
+
 import { buttonVariants } from "@/components/ui/button"
 import { MainNav } from "@/components/main-nav";
 import { cn } from "@/lib/utils";
 
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from 'next/router';
 import { useEffect } from "react";
 
 const navItems = [
@@ -18,17 +19,16 @@ const navItems = [
 
 export default function IndexPage() {
   const { data: session, status } = useSession();
-
   const router = useRouter();
   useEffect(() => {
-    if (session) {
-      router.push('/dashboard');
+    if (!session && status !== "loading") {
+      router.push('/login');
     }
-  }, [session, router]);
+  }, [session, status, router]);
 
   if (status !== "authenticated") return (
     <div>LOADING</div>
-  )
+    )
 
   return (
     <>
@@ -36,15 +36,15 @@ export default function IndexPage() {
         <div className="flex h-20 items-center justify-between py-6">
           <MainNav items={navItems}/>
           <nav>
-            <Link
-              href="/login"
+            <div
+              onClick={() => signOut({ callbackUrl: 'http://localhost:3000/' })}
               className={cn(
                 buttonVariants({ variant: "secondary", size: "sm" }),
                 "px-4"
               )}
             >
-              Login
-            </Link>
+              Logged
+            </div>
           </nav>
         </div>
       </header>

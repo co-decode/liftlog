@@ -1,4 +1,3 @@
-
 //import { dashboardConfig } from "@/config/dashboard"
 //import { getCurrentUser } from "@/lib/session"
 import { Icons } from "@/components/icons";
@@ -21,12 +20,12 @@ const navItems = [
 ]
 
 const footerItems = [
-  { icon: <Icons.list />, href: "/sessions" },
+  { icon: <Icons.logout />, href: "/dashboard" },
   { icon: <Icons.dumbbell />, href: "/programs" },
   { icon: <Icons.calendar />, href: "/schedule" },
 ]
 
-export default function DashboardLayout() {
+export default function Sessions() {
   //const user = await getCurrentUser()
   const { data: session, status } = useSession()
 

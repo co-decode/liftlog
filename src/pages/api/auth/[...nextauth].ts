@@ -20,6 +20,7 @@ export const authOptions: NextAuthOptions = {
 
   providers: [
     CredentialsProvider({
+      id:"credentials",
       // The name to display on the sign in form (e.g. "Sign in with...")
       name: "Credentials",
       // `credentials` is used to generate a form on the sign in page.
@@ -27,7 +28,8 @@ export const authOptions: NextAuthOptions = {
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "Your Username" },
+        email: {label: "Email", type: "text", placeholder: "Your Email" },
+        //username: { label: "Username", type: "text", placeholder: "Your Username" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
@@ -46,6 +48,7 @@ export const authOptions: NextAuthOptions = {
       }
     }),
     EmailProvider({
+      id: "email",
       server: {
         host: process.env.EMAIL_SERVER_HOST,
         port: process.env.EMAIL_SERVER_PORT,
@@ -77,11 +80,13 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     GithubProvider({
+      id:"github",
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
       allowDangerousEmailAccountLinking: true,
     }),
     NetlifyProvider({
+      id:"netlify",
       clientId: process.env.NETLIFY_ID,
       clientSecret: process.env.NETLIFY_SECRET,
       allowDangerousEmailAccountLinking: true,

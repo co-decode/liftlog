@@ -4,12 +4,13 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
-import { UserAuthForm } from "@/components/user-auth-form";
+//import { UserAuthForm } from "@/components/user-auth-form";
+import { UserRegForm } from "@/components/user-reg-form";
 import { MainNav } from "@/components/main-nav";
 
 export const metadata: Metadata = {
-  title: "Login",
-  description: "Login to your account",
+  title: "Register",
+  description: "Create an account",
 };
 
 const navItems = [
@@ -21,7 +22,7 @@ const navItems = [
   { title: "Exercise Library", href: "#" },
 ];
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="min-h-screen grid grid-rows-[min-content_1fr]">
       <header className="container z-40 bg-background">
@@ -29,14 +30,13 @@ export default function LoginPage() {
           <MainNav items={navItems} />
           <nav>
             <Link
-              href="/"
+              href="/login"
               className={cn(
                 buttonVariants({ variant: "secondary", size: "sm" }),
-                "px-3"
+                "px-4"
               )}
             >
-              <Icons.chevronLeft className="mr-1 h-4 w-4" />
-              Back
+              Login
             </Link>
           </nav>
         </div>
@@ -46,20 +46,29 @@ export default function LoginPage() {
           <div className="flex flex-col space-y-2 text-center">
             <Icons.dumbbell className="mx-auto h-8 w-8" />
             <h1 className="text-2xl font-semibold tracking-tight">
-              Welcome back
+              Create an account
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your credentials to sign in
+              Enter your email below to create your account
             </p>
           </div>
-          <UserAuthForm />
-          <p className="px-8 pb-4 text-center text-sm text-muted-foreground">
+          <UserRegForm />
+        <p className="px-8 text-center text-sm text-muted-foreground">
+            By clicking continue, you agree to our{" "}
             <Link
-              href="/register"
+              href="/terms"
               className="hover:text-brand underline underline-offset-4"
             >
-              Don&apos;t have an account? Sign Up
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="hover:text-brand underline underline-offset-4"
+            >
+              Privacy Policy
             </Link>
+            .
           </p>
         </div>
       </div>

@@ -1,18 +1,46 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app';
-import type { Session } from 'next-auth';
-import { trpc } from '../utils/trpc';
+import "@/styles/globals.css";
+import "@/styles/fonts.module.css";
+import type { AppProps } from "next/app";
+import type { Session } from "next-auth";
+import Head from "next/head";
+import { ThemeProvider } from "@/components/theme-provider";
+import { trpc } from "../utils/trpc";
 import { SessionProvider } from "next-auth/react";
+import { Inter } from "next/font/google";
 
-const App  = ({ 
+const fontSans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const App = ({
   Component,
   pageProps: { session, ...pageProps },
-}: AppProps<{session: Session}>) => {
+}: AppProps<{ session: Session }>) => {
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
-  )
+    <>
+      <Head>
+        <title>LiftLog</title>
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width"
+        />
+      </Head>
+      <style jsx global>
+        {`
+          html {
+            font-family: ${fontSans.style.fontFamily};
+          }
+        `}
+      </style>
+
+      <SessionProvider session={session}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </SessionProvider>
+    </>
+  );
 };
 
 export default trpc.withTRPC(App);
