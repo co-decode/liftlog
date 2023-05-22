@@ -1,5 +1,5 @@
 ///import styles from '@/styles/Home.module.css'
-import { trpc } from '../utils/trpc';
+import { trpc } from '@/utils/trpc'
 import { inferProcedureInput } from '@trpc/server';
 import type { AppRouter } from '@/server/routers/_app';
 import { useForm, SubmitHandler } from "react-hook-form";
