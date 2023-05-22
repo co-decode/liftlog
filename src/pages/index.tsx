@@ -26,7 +26,7 @@ export default function IndexPage() {
     }
   }, [session, router]);
 
-  if (status !== "authenticated") return (
+  if (status === "loading") return (
     <div>LOADING</div>
   )
 
