@@ -4,8 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
-//import { UserAuthForm } from "@/components/user-auth-form";
-import { UserRegForm } from "@/components/user-reg-form";
+import { UserAuthForm } from "@/components/user-auth-form";
 import { MainNav } from "@/components/main-nav";
 
 export const metadata: Metadata = {
@@ -52,18 +51,18 @@ export default function RegisterPage() {
               Enter your email below to create your account
             </p>
           </div>
-          <UserRegForm />
+          <UserAuthForm register />
         <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <Link
-              href="/terms"
+              href="#"
               className="hover:text-brand underline underline-offset-4"
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
-              href="/privacy"
+              href="#"
               className="hover:text-brand underline underline-offset-4"
             >
               Privacy Policy

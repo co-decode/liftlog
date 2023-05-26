@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
@@ -14,7 +13,14 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  isLoading: boolean
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  isGitHubLoading: boolean
+  setIsGitHubLoading: React.Dispatch<React.SetStateAction<boolean>>
+  isNetlifyLoading: boolean
+  setIsNetlifyLoading: React.Dispatch<React.SetStateAction<boolean>>
+}
 
 const userAuthEmailSchema = z.object({
   email: z.string().email(),
@@ -22,14 +28,20 @@ const userAuthEmailSchema = z.object({
 
 type FormDataEmail = z.infer<typeof userAuthEmailSchema>
 
-export function UserRegForm({ className, ...props }: UserAuthFormProps) {
+export function UserRegForm({
+  isLoading,
+  setIsLoading,
+  isGitHubLoading,
+  setIsGitHubLoading,
+  isNetlifyLoading,
+  setIsNetlifyLoading,
+  className,
+  ...props
+}: UserAuthFormProps) {
+
   const emailSchema = useForm<FormDataEmail>({
     resolver: zodResolver(userAuthEmailSchema),
   })
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [isGitHubLoading, setIsGitHubLoading] = React.useState<boolean>(false)
-  const [isNetlifyLoading, setIsNetlifyLoading] = React.useState<boolean>(false)
-  const searchParams = useSearchParams()
 
   async function onSubmitEmail(data: FormDataEmail) {
     setIsLoading(true)
@@ -37,7 +49,7 @@ export function UserRegForm({ className, ...props }: UserAuthFormProps) {
     const signInResult = await signIn("email", {
       email: data.email.toLowerCase(),
       redirect: false,
-      callbackUrl: searchParams?.get("from") || "/dashboard",
+      callbackUrl: "/dashboard",
     })
 
     setIsLoading(false)
@@ -99,39 +111,42 @@ export function UserRegForm({ className, ...props }: UserAuthFormProps) {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-      <button
-        type="button"
-        className={cn(buttonVariants({ variant: "outline" }))}
-        onClick={() => {
-          setIsGitHubLoading(true)
-          signIn("github")
-        }}
-        disabled={isLoading || isGitHubLoading || isNetlifyLoading}
-      >
-        {isGitHubLoading ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.gitHub className="mr-2 h-4 w-4" />
-        )}{" "}
-        Github
-      </button>
-      <button
-        type="button"
-        className={cn(buttonVariants({ variant: "outline" }), "p-0")}
-        onClick={() => {
-          setIsNetlifyLoading(true)
-          signIn("netlify")
-        }}
-        disabled={isLoading || isGitHubLoading || isNetlifyLoading}
-      >
-        {isNetlifyLoading ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.netlify className="mr-2 h-4 w-4" />
-        )}{" "}
-        Netlify
-      </button>
+        <button
+          type="button"
+          className={cn(buttonVariants({ variant: "outline" }))}
+          onClick={() => {
+            setIsGitHubLoading(true);
+            signIn("github", { redirect: false });
+          }}
+          disabled={isLoading || isGitHubLoading || isNetlifyLoading}
+        >
+          {isGitHubLoading ? (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Icons.gitHub className="mr-2 h-4 w-4" />
+          )}{" "}
+          Github
+        </button>
+        <button
+          type="button"
+          className={cn(buttonVariants({ variant: "outline" }), "p-0")}
+          onClick={() => {
+            setIsNetlifyLoading(true);
+            signIn("netlify", { redirect: false });
+          }}
+          disabled={isLoading || isGitHubLoading || isNetlifyLoading}
+        >
+          {isNetlifyLoading ? (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Icons.netlify className="text-white mr-2 h-4 w-4" />
+          )}{" "}
+          Netlify
+        </button>
       </div>
     </div>
   )
 }
+  //const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  //const [isGitHubLoading, setIsGitHubLoading] = React.useState<boolean>(false)
+  //const [isNetlifyLoading, setIsNetlifyLoading] = React.useState<boolean>(false)

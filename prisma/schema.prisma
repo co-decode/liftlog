@@ -38,6 +38,7 @@ model Session {
 model User {
   id               Int               @id @default(autoincrement())
   name             String?
+  password         String?
   email            String?           @unique
   emailVerified    DateTime?
   image            String?
@@ -72,8 +73,11 @@ model Exercise {
 
 model Set {
   id         Int      @id @default(autoincrement())
+  setNumber  Int
   reps       Int
   weight     Decimal  @db.Decimal(6, 2)
   exerciseId Int
   exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseId, setNumber])
 }

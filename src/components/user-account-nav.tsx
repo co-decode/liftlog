@@ -15,12 +15,14 @@ import { Icons } from "@/components/icons";
 import { UserAvatar } from "@/components/user-avatar";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
+import { useRouter } from "next/router";
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Pick<User, "name" | "image" | "email">;
 }
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
+  const router = useRouter()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -54,11 +56,13 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={(event) => {
+          onSelect={async (event) => {
             event.preventDefault();
-            signOut({
+            const data = await signOut({
               callbackUrl: `${window.location.origin}/login`,
+              redirect: false,
             });
+            router.push(data.url)
           }}
         >
           <Icons.logout className="w-4 h-4 mr-2" />

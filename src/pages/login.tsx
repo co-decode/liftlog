@@ -25,7 +25,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen grid grid-rows-[min-content_1fr]">
       <header className="container z-40 bg-background">
-        <div className="flex h-20 items-center justify-between py-6">
+        <div className="flex h-16 items-center justify-between py-4">
           <MainNav items={navItems} />
           <nav>
             <Link

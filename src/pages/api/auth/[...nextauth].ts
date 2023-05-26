@@ -17,6 +17,9 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: "/login",
+  },
   providers: [
     CredentialsProvider({
       id:"credentials",
@@ -27,7 +30,7 @@ export const authOptions: NextAuthOptions = {
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        email: {label: "Email", type: "text", placeholder: "Your Email" },
+        identifier: {label: "Identifier", type: "text", placeholder: "Your Email OR Username" },
         //username: { label: "Username", type: "text", placeholder: "Your Username" },
         password: { label: "Password", type: "password" }
       },
