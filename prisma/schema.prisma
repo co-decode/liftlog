@@ -61,6 +61,8 @@ model ExerciseSession {
   userId    Int
   exercises Exercise[]
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
 }
 
 model Exercise {

@@ -26,9 +26,9 @@ const exSessValid = Prisma.validator<Prisma.ExerciseSessionSelect>()({
   userId: false
 })
 
-const allUser = Prisma.validator<Prisma.UserSelect>()({
-  name: true,
-  id: true,
+const userExerciseSessions = Prisma.validator<Prisma.UserSelect>()({
+  name: false,
+  id: false,
   email: false,
   emailVerified: false,
   exerciseSessions: {
@@ -36,14 +36,34 @@ const allUser = Prisma.validator<Prisma.UserSelect>()({
   }
 });
 
-
-
 export const usersRouter = router({
   findAll: procedure
-    .query(async () => {
-      return await prisma.user.findMany({
-        select: allUser,
-
+    .input(z.string().email())
+    .query(async ({ input }) => {
+      return await prisma.user.findUnique({
+        where: {
+          email: input
+        },
+        select: {
+          exerciseSessions: {
+            orderBy: { date: 'desc' },
+            select: {
+              date: true,
+              exercises: {
+                select: {
+                  name: true,
+                  sets: {
+                    orderBy: { setNumber: 'asc' },
+                    select: {
+                      reps: true,
+                      weight: true,
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
       });
     }),
   insertOne: procedure

@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import React from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DataTable } from "@/components/sessions-table";
+import { columns } from "@/components/sessions-columns";
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard" },
@@ -39,34 +41,29 @@ interface SessionsProps {
 
 const SetSchema = z.object({
   reps: z.number(),
-  weight: z.number(),
-}); 
+  weight: z.string(),
+});
 
 const ExerciseSchema = z.object({
-  exerciseName: z.string(),
+  name: z.string(),
   sets: z.array(SetSchema),
 });
 
 const ExerciseSessionSchema = z.object({
-  date: z.coerce.date(),
+  date: z.string(),
   exercises: z.array(ExerciseSchema),
 });
 
-const UserSchema = z.object({
-  email: z.string().email(),
-  exerciseSessions: ExerciseSessionSchema,
-})
+export type Schema = z.infer<typeof ExerciseSessionSchema>
 
-type FormDataUserUpdate = z.infer<typeof UserSchema>;
+//type FormDataUserUpdate = z.infer<typeof UserSchema>;
 
 export default function Sessions({ children }: SessionsProps) {
-  //const user = await getCurrentUser()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { data: session, status } = useSession();
 
-  const updateSchema = useForm<FormDataUserUpdate>({
-    resolver: zodResolver(UserSchema),
-  });
+  // const updateSchema = useForm<FormDataUserUpdate>({
+  //   resolver: zodResolver(UserSchema),
+  // });
   const router = useRouter();
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -74,150 +71,52 @@ export default function Sessions({ children }: SessionsProps) {
     }
   }, [session, status, router]);
 
-  const updateUser = trpc.sessions.updateOne.useMutation({
-    onSuccess() {
-      console.log("User Successfully Updated!");
-    },
-  });
-  const getAll = trpc.users.findAll.useQuery();
-  const { register, handleSubmit, watch, formState, formState: { errors } } = updateSchema;
-  const watchEverything = watch();
-  React.useEffect(() => {
-    const subscription = watch((value, { name, type }) => console.log(value, name, type));
-    return () => subscription.unsubscribe();
-  }, [watch]);
-  const onSubmit: SubmitHandler<FormDataUserUpdate> = async (data) => {
-    setIsLoading(true);
-    type Input = inferProcedureInput<AppRouter["sessions"]["updateOne"]>;
-    const input: Input = data;
-    try {
-      console.log("I ran")
-      await updateUser.mutateAsync(input);
-      getAll.refetch();
-    } catch (cause) {
-      console.error({ cause }, "Failed to insert");
-    }
-    setIsLoading(false);
-  };
+  // session.user.email
+  const getSessions = trpc.users.findAll.useQuery("cody@cody.com");
 
-  if (status !== "authenticated") return <div>LOADING</div>;
   return (
     <div className="flex min-h-screen flex-col space-y-6">
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
           <MainNav items={navItems} />
-          <UserAccountNav
-            user={{
-              name: session?.user?.name,
-              image: session?.user?.image,
-              email: session?.user?.email,
-            }}
-          />
+          {status !== "authenticated" ? null : (
+            <UserAccountNav
+              user={{
+                name: session?.user?.name,
+                image: session?.user?.image,
+                email: session?.user?.email,
+              }}
+            />
+          )}
         </div>
       </header>
       <main className="flex w-full flex-1 flex-col overflow-hidden">
-        {children}
-        {getAll ? JSON.stringify(getAll.data) : null}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="w-72 grid gap-2">
-          <div className="grid gap-2">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="email"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="none"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("email")}
-            />
-            {formState.errors?.email && (
-              <p className="px-1 text-xs text-red-600">
-                {formState.errors.email.message}
-              </p>
-            )}
-            <Label className="" htmlFor="date">
-              Date
-            </Label>
-            <Input
-              id="date"
-              type="date"
-              autoCapitalize="none"
-              autoComplete="none"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register(`exerciseSessions.date`, {valueAsDate: true})}
-            />
-            {formState.errors?.exerciseSessions?.date && (
-              <p className="px-1 text-xs text-red-600">
-                {formState.errors.exerciseSessions.date.message}
-              </p>
-            )}
-            <Label className="" htmlFor="exerciseName">
-              Exercise Name
-            </Label>
-            <Input
-              id="exerciseName"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="none"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register(`exerciseSessions.exercises.0.name`)}
-            />
-            {formState.errors?.exerciseSessions?.exercises?.[0]?.name && (
-              <p className="px-1 text-xs text-red-600">
-                {formState.errors.exerciseSessions.exercises[0].name.message}
-              </p>
-            )}
-            <Label className="" htmlFor="reps">
-              Reps
-            </Label>
-            <Input
-              id="reps"
-              type="number"
-              autoCapitalize="none"
-              autoComplete="none"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register(`exerciseSessions.exercises.0.sets.0.reps`, {valueAsNumber:true})}
-            />
-            {formState.errors?.exerciseSessions?.exercises?.[0]?.sets?.[0]?.reps && (
-              <p className="px-1 text-xs text-red-600">
-                {formState.errors.exerciseSessions.exercises[0].sets[0].reps.message}
-              </p>
-            )}
-            <Label className="" htmlFor="weight">
-              Weight
-            </Label>
-            <Input
-              id="weight"
-              type="number"
-              autoCapitalize="none"
-              autoComplete="none"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register(`exerciseSessions.exercises.0.sets.0.weight`, {valueAsNumber:true})}
-            />
-            {formState.errors?.exerciseSessions?.exercises?.[0]?.sets?.[0]?.weight && (
-              <p className="px-1 text-xs text-red-600">
-                {formState.errors.exerciseSessions.exercises[0].sets[0].weight.message}
-              </p>
-            )}
-          </div>
-          <button className={cn(buttonVariants())} disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Add Data
-          </button>
-        </div>
-      </form>
+        {
+ // THIS should be used for layout: children
+          // <>{getAll ? JSON.stringify(getAll.data) : null}</>
+        }
+        {status !== "authenticated" ? null : (
+          <>
+          {getSessions.data &&
+            <DataTable className="mx-2" columns={columns} data={getSessions.data.exerciseSessions}/>
+          }
+          </>
+        )}
       </main>
-      <SiteFooter className="border-t bg-background fixed bottom-0 w-full" footerItems={footerItems} />
+      <SiteFooter
+        className="border-t bg-background fixed bottom-0 w-full"
+        footerItems={footerItems}
+        loading={status !== "authenticated"}
+      />
     </div>
   );
 }
+/*
+            {getSessions.data?.exerciseSessions.map((sess, ind) => {
+              return (
+                <div key={sess.date + String(ind)} className="container mx-auto py-10">
+                  <p>{new Date(sess.date).toLocaleString()}</p>
+                </div>
+              )
+            })}
+            */
