@@ -1,3 +1,5 @@
+import Layout from "@/components/authenticated-layout"
+import { addConfig } from "@/config/add-config";
 import { DatePicker } from "@/components/date-picker";
 import { Icons } from "@/components/icons";
 import { MainNav } from "@/components/main-nav";
@@ -5,7 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { UserAccountNav } from "@/components/user-account-nav";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { Dispatch, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import { useEffect } from "react";
 
 import Link from "next/link";
@@ -15,7 +17,10 @@ import {
   Control,
   FieldErrors,
   SubmitHandler,
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
   UseFormRegister,
+  UseFormReturn,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -55,119 +60,50 @@ import { trpc } from "@/utils/trpc";
 import { inferProcedureInput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 
+const { navItems, footerItems } = addConfig
+
+const exerciseSchema = z.object({
+  exerciseName: z.string(),
+  sets: z
+    .array(
+      z.object({
+        setNumber: z.number().positive().int().max(10),
+        reps: z
+          .number({ required_error: "Required!" })
+          .positive()
+          .int()
+          .max(999),
+        weight: z.number().multipleOf(0.01).max(9999),
+      })
+    )
+    .nonempty(),
+})
+
 const formSchema = z.object({
   date: z.date({
     required_error: "A date is required.",
   }),
-  exercises: z
-    .array(
-      z.object({
-        exerciseName: z.string(),
-        sets: z
-          .array(
-            z.object({
-              setNumber: z.number().positive().int().max(10),
-              reps: z
-                .number({ required_error: "Required!" })
-                .positive()
-                .int()
-                .max(999),
-              weight: z.number().multipleOf(0.01).max(9999),
-            })
-          )
-          .nonempty(),
-      })
-    )
-    .nonempty(),
+  exercises: z.array(exerciseSchema).nonempty(),
 });
-
-const navItems = [
-  { title: "Dashboard", href: "#" },
-  { title: "Workouts", href: "#" },
-  { title: "Sessions", href: "#" },
-  { title: "Schedule", href: "#" },
-  { title: "Community", href: "#" },
-  { title: "Exercise Library", href: "#" },
-];
-
-const footerItems = [
-  { icon: <Icons.logout />, href: "/sessions" },
-  { icon: <Icons.home />, href: "/dashboard" },
-  { icon: <Icons.calendar />, href: "/schedule" },
-];
 
 export default function AddPage() {
   const { data: session, status } = useSession();
-  const [exercises, setExercises] = useState<string[]>([]);
-  const [selectExercise, setSelectExercise] = useState<string | undefined>();
   const [page, setPage] = useState<string | undefined>();
-  const [sets, setSets] = useState<Record<string, number | null>>({});
-  const [removeMode, setRemoveMode] = useState<boolean>(false);
   const [warning, setWarning] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
-  useEffect(() => {
-    if (!session && status !== "loading") {
-      router.push("/login");
-    }
-  }, [session, status, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     //shouldUnregister: true,
   });
 
-  const {
-    control,
-    register,
-    formState: { errors },
-    watch,
-  } = form;
-
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control,
-      name: "exercises",
-    }
-  );
-
-/*  React.useEffect(() => {
-    console.log("Errors", errors);
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
-    );
-    return () => subscription.unsubscribe();
-  }, [watch, errors]);
-*/
-
-  function handleAddExercise() {
-    if (!selectExercise) return;
-    setExercises([...exercises, selectExercise]);
-    setSets({ ...sets, [selectExercise]: 1 });
-    append({
-      exerciseName: selectExercise,
-      sets: [{ setNumber: 1, reps: 0, weight: 0 }],
-    });
-    setSelectExercise(undefined);
-  }
-
-  function handleExerciseClick(ex: string, ind: number) {
-    if (!removeMode) setPage(!page ? ex : undefined);
-    else if (removeMode) {
-      if (exercises.length === 1) setRemoveMode(false);
-      setExercises(exercises.filter((v) => v !== ex));
-      const setsCopy = { ...sets };
-      delete setsCopy[ex];
-      setSets(setsCopy);
-      remove(ind);
-    }
-  }
-
   const createSession = trpc.sessions.updateOne.useMutation({
     onSuccess() {
       console.log("Success!");
     },
+    //onError()
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
@@ -190,157 +126,181 @@ export default function AddPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col space-y-6">
-      <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="container flex h-16 items-center justify-between py-4">
-          <MainNav items={navItems} />
-          {status !== "authenticated" ? null : (
-            <UserAccountNav
-              user={{
-                name: session?.user?.name,
-                image: session?.user?.image,
-                email: session?.user?.email,
-              }}
-            />
-          )}
-        </div>
-      </header>
+    <Layout navItems={navItems} footerItems={footerItems} setWarning={setWarning}>
       {status !== "authenticated" ? null : (
-        <>
-          <main className="flex w-full flex-1 flex-col items-center overflow-hidden">
-            {/*children*/}
-            {!page ? (
-              <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-5">
-                Add Session
-              </h2>
-            ) : null}
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 mb-20"
-              >
-                {!page ? (
-                  <>
-                    <FormField
-                      control={form.control}
-                      name="date"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Date</FormLabel>
-                          <DatePicker
-                            date={field.value}
-                            setDate={field.onChange}
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Table className="w-[300px] mx-1">
-                      <TableCaption className="relative mb-3 text-left">
-                        {removeMode
-                          ? "Delete Exercises"
-                          : exercises.length
-                          ? "Current Exercises in the Session"
-                          : "Add Exercises to the Session"}
-                        <Button
-                          variant="ghost"
-                          type="button"
-                          className="absolute right-0 top-[50%] translate-y-[-50%]"
-                          onClick={() =>
-                            exercises.length && setRemoveMode(!removeMode)
-                          }
-                          disabled={!exercises.length}
-                        >
-                          {removeMode ? (
-                            <Icons.edit className="w-4 h-4" />
-                          ) : (
-                            <Icons.trash className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </TableCaption>
-                      <TableHeader>
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead>Exercise</TableHead>
-                          <TableHead className="text-right">
-                            {removeMode ? "Delete" : "Sets"}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {exercises.map((ex, ind) => (
-                          <TableRow
-                            key={ex}
-                            onClick={() => handleExerciseClick(ex, ind)}
-                            className="group parent hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
-                            role="link"
-                            tabIndex={0}
-                          >
-                            <TableCell className="font-medium capitalize relative">
-                              {ex}
-                              {errors?.exercises?.[ind]?.sets && (
-                                <Icons.warning className="w-4 h-4 ml-3 mb-[2px] relative inline text-red-600 animate-pulse animate-ping" />
-                              )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {removeMode ? (
-                                <Icons.close className="inline w-4 h-4 transition group-hover:scale-125 group-hover:text-red-600 child" />
-                              ) : (
-                                sets[ex]
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                    <div className="flex justify-between">
-                      <Combobox
-                        value={selectExercise}
-                        setValue={setSelectExercise}
-                        currentExercises={exercises}
-                      />
-                      <Button
-                        type="button"
-                        disabled={loading}
-                        onClick={handleAddExercise}
-                      >
-                        <Icons.add />
-                      </Button>
-                    </div>
-                    <Button type="submit" disabled={loading} className="w-full">
-                      {loading && (
-                        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Submit
-                    </Button>
-                  </>
-                ) : (
-                  <ExerciseForm
-                    nestIndex={exercises.findIndex((v) => v === page)}
-                    control={control}
-                    register={register}
-                    errors={errors}
-                    page={page}
-                    setPage={setPage}
-                    sets={sets}
-                    setSets={setSets}
-                  />
-                )}
-              </form>
-            </Form>
-          </main>
-          <SiteFooter
-            className="border-t bg-background fixed bottom-0 w-full"
-            footerItems={footerItems}
-            setWarning={setWarning}
-          />
-        </>
+        <div className="flex w-full flex-1 flex-col items-center overflow-hidden">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-8 mb-20"
+            >
+              {!page ? (
+                <SessionForm
+                  page={page}
+                  setPage={setPage}
+                  form={form}
+                  loading={loading}
+                />
+              ) : (
+                <ExerciseForm
+                  form={form}
+                  page={page}
+                  setPage={setPage}
+                />
+              )}
+            </form>
+          </Form>
+        </div>
       )}
       {warning ? (
         <NavigationAlert warning={warning} setWarning={setWarning} />
       ) : null}
-    </div>
+    </Layout>
   );
 }
+
+interface SessionFormProps {
+  page: string | undefined
+  setPage: Dispatch<SetStateAction<string | undefined>>
+  form: UseFormReturn<z.infer<typeof formSchema>>
+  loading: boolean
+}
+
+function SessionForm({
+  page,
+  setPage,
+  form,
+  loading
+}: SessionFormProps) {
+  const [removeMode, setRemoveMode] = useState<boolean>(false);
+  const [selectExercise, setSelectExercise] = useState<string | undefined>();
+  const { control, formState: {errors}} = form
+
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
+    {
+      control,
+      name: "exercises",
+    }
+  );
+
+  function handleAddExercise() {
+    if (!selectExercise) return;
+    append({
+      exerciseName: selectExercise,
+      sets: [{ setNumber: 1, reps: 0, weight: 0 }],
+    });
+    setSelectExercise(undefined);
+  }
+
+  function handleExerciseClick(ex: string, ind: number) {
+    if (!removeMode) setPage(!page ? ex : undefined);
+    else if (removeMode) {
+      if (fields.length === 1) setRemoveMode(false);
+      remove(ind);
+    }
+  }
+
+  return (
+    <>
+      <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-5 text-center">
+        Add Session
+      </h2>
+      <FormField
+        control={form.control}
+        name="date"
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Date</FormLabel>
+            <DatePicker
+              date={field.value}
+              setDate={field.onChange}
+            />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <Table className="w-[300px] mx-1">
+        <TableCaption className="relative mb-3 text-left">
+          {removeMode
+            ? "Delete Exercises"
+            : fields.length
+              ? "Current Exercises in the Session"
+              : "Add Exercises to the Session"}
+          <Button
+            variant="ghost"
+            type="button"
+            className="absolute right-0 top-[50%] translate-y-[-50%]"
+            onClick={() =>
+              fields.length && setRemoveMode(!removeMode)
+            }
+            disabled={!fields.length}
+          >
+            {removeMode ? (
+              <Icons.edit className="w-4 h-4" />
+            ) : (
+              <Icons.trash className="w-4 h-4" />
+            )}
+          </Button>
+        </TableCaption>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>Exercise</TableHead>
+            <TableHead className="text-right">
+              {removeMode ? "Delete" : "Sets"}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {fields.map((ex, ind) => (
+            <TableRow
+              key={ex.exerciseName}
+              onClick={() => handleExerciseClick(ex.exerciseName, ind)}
+              className="group parent hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
+              role="link"
+              tabIndex={0}
+            >
+              <TableCell className="font-medium capitalize relative">
+                {ex.exerciseName}
+                {errors?.exercises?.[ind]?.sets && (
+                  <Icons.warning className="w-4 h-4 ml-3 mb-[2px] relative inline text-red-600 animate-pulse animate-ping" />
+                )}
+              </TableCell>
+              <TableCell className="text-right">
+                {removeMode ? (
+                  <Icons.close className="inline w-4 h-4 transition group-hover:scale-125 group-hover:text-red-600 child" />
+                ) : (
+                  //sets[ex.exerciseName]
+                  ex.sets.length
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <div className="flex justify-between">
+        <Combobox
+          value={selectExercise}
+          setValue={setSelectExercise}
+          currentExercises={fields.map(v => v.exerciseName)}
+        />
+        <Button
+          type="button"
+          disabled={loading}
+          onClick={handleAddExercise}
+        >
+          <Icons.add />
+        </Button>
+      </div>
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading && (
+          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+        )}
+        Submit
+      </Button>
+    </>
+  )
+}
+
 
 interface NavigationAlertProps {
   warning: string;
@@ -350,7 +310,7 @@ interface NavigationAlertProps {
 function NavigationAlert({ warning, setWarning }: NavigationAlertProps) {
   useLockBody();
   return (
-    <div className="z-50 bg-background/50 w-full h-full fixed !m-0">
+    <div className="z-50 bg-background/50 w-full h-full fixed !m-0 top-0">
       <Card className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 min-w-max">
         <CardHeader>
           <CardTitle className="text-center mb-2">Leave the Page?</CardTitle>
@@ -385,48 +345,35 @@ function NavigationAlert({ warning, setWarning }: NavigationAlertProps) {
 }
 
 interface ExerciseFormProps {
-  nestIndex: number;
-  control: Control<z.infer<typeof formSchema>>;
-  register: UseFormRegister<z.infer<typeof formSchema>>;
-  errors: FieldErrors<z.infer<typeof formSchema>>;
+  form: UseFormReturn<z.infer<typeof formSchema>>
   page: string;
-  setPage: Dispatch<React.SetStateAction<string | undefined>>;
-  sets: Record<string, number | null>;
-  setSets: Dispatch<React.SetStateAction<Record<string, number | null>>>;
+  setPage: Dispatch<SetStateAction<string | undefined>>;
 }
 
 function ExerciseForm({
-  nestIndex,
-  control,
-  register,
-  errors,
+  form,
   page,
   setPage,
-  sets,
-  setSets,
 }: ExerciseFormProps) {
-  const prevSets = useRef<number>(0);
+  const { control, getValues, register, formState: {errors}} = form
+  const nestIndex = getValues().exercises.findIndex(ex=>ex.exerciseName === page)
   const { fields, remove, append } = useFieldArray({
     control,
     name: `exercises.${nestIndex}.sets`,
   });
+
   function handleSetChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!page) return;
     const value = Number(e.target.value);
     if (value < 1 || value > 10) return;
-    setSets({ ...sets, [page]: value });
-    let prevValue = sets[page];
-    if (prevValue && prevValue < value)
+    let prevValue = fields.length;
+    if (prevValue < value)
       for (prevValue; prevValue < value; prevValue++)
         append({ setNumber: prevValue + 1, reps: 0, weight: 0 });
+    else if (prevValue > value)
+      for (prevValue; prevValue > value; prevValue--)
+        remove(prevValue - 1)
   }
-
-  React.useEffect(() => {
-    const currentVal = sets[page] || 0;
-    if (prevSets.current && prevSets.current > currentVal)
-      for (let i = prevSets.current; i > currentVal; i--) remove(i - 1);
-    prevSets.current = currentVal;
-  }, [remove, page, sets]);
 
   return (
     <>
@@ -447,7 +394,7 @@ function ExerciseForm({
           type="number"
           min="1"
           max="10"
-          defaultValue={sets[page] || 1}
+          defaultValue={fields.length || 1}
           className="w-16"
           onChange={handleSetChange}
         />

@@ -1,7 +1,15 @@
-import { Session } from 'next-auth';
-import { useSession } from 'next-auth/react';
-import React, { createContext, useContext } from 'react';
-import { z } from 'zod';
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useState,
+} from "react";
+import { z } from "zod";
+import AuthenticatedLayout from "./authenticated-layout";
+import { FooterConfig, NavConfig } from "@/types";
 
 const SetSchema = z.object({
   reps: z.number(),
@@ -18,29 +26,47 @@ const ExerciseSessionSchema = z.object({
   exercises: z.array(ExerciseSchema),
 });
 
-export type Schema = z.infer<typeof ExerciseSessionSchema>
+export type Schema = z.infer<typeof ExerciseSessionSchema>;
 
 interface AuthContextValue {
-  exerciseSessions: Schema | undefined;
+  exerciseSessions?: Schema[]
+  setter?: Dispatch<SetStateAction<Schema[] | undefined>>;
 }
 
-const AuthContext = createContext<AuthContextValue>({exerciseSessions:undefined});
+const AuthContext = createContext<AuthContextValue>({
+  exerciseSessions: undefined,
+  setter: undefined,
+});
 
-interface AuthProviderProps {
-  children: React.ReactNode
+interface AuthenticatedLayoutProps {
+  children: React.ReactNode;
+  navItems: NavConfig
+  footerItems: FooterConfig;
+  setWarning?: React.Dispatch<React.SetStateAction<string>>
+  className?: string;
 }
 
-export default function AuthProvider({ children }: AuthProviderProps) {
-  const authContextValue: AuthContextValue = {
-    exerciseSessions: undefined,
-  };
+export default function AuthProvider({ 
+  children,
+  navItems,
+  footerItems,
+  setWarning,
+  className = "",
+}: AuthenticatedLayoutProps) {
+  const [exerciseSessions, setExerciseSessions] = useState<Schema[]>();
 
   return (
-    <AuthContext.Provider value={authContextValue}>
-      {children}
+    <AuthContext.Provider value={{ exerciseSessions, setter:setExerciseSessions}}>
+      <AuthenticatedLayout 
+        navItems={navItems} 
+        footerItems={footerItems}
+        setWarning={setWarning}
+        className={className}
+      >
+        {children}
+      </AuthenticatedLayout>
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => useContext(AuthContext);
-

@@ -3,14 +3,17 @@ import GithubProvider from "next-auth/providers/github"
 import NetlifyProvider from "next-auth/providers/netlify"
 import CredentialsProvider from "next-auth/providers/credentials"
 import EmailProvider from "next-auth/providers/email"
-import { prisma }  from "../../../server/prisma"
+import { prisma } from "../../../server/prisma"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 import { Adapter, AdapterAccount } from "next-auth/adapters"
+import { trpc } from "@/utils/trpc"
+import { caller } from "@/server/routers/users"
+import bcrypt from "bcrypt"
 
 const adapter = {
   ...PrismaAdapter(prisma),
-  linkAccount: ({ ok, state, ...data }: any) => { console.log("linkAccount call: ", data); prisma.account.create({ data })}
+  linkAccount: ({ ok, state, ...data }: any) => { console.log("linkAccount call: ", data); prisma.account.create({ data }) }
 } as Adapter
 export const authOptions: NextAuthOptions = {
   adapter,
@@ -22,7 +25,7 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
-      id:"credentials",
+      id: "credentials",
       // The name to display on the sign in form (e.g. "Sign in with...")
       name: "Credentials",
       // `credentials` is used to generate a form on the sign in page.
@@ -30,13 +33,32 @@ export const authOptions: NextAuthOptions = {
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        identifier: {label: "Identifier", type: "text", placeholder: "Your Email OR Username" },
+        identifier: { label: "Identifier", type: "text", placeholder: "Your Email" },
         //username: { label: "Username", type: "text", placeholder: "Your Username" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
+        if (!credentials?.identifier) return null;
+        //const checkCreds = trpc.users..useQuery(credentials.identifier)
+        const checkCreds = await caller.checkCreds(credentials.identifier)
+        if (!checkCreds?.password) return null;
+
+        bcrypt.compare(credentials.password, checkCreds.password, (err, result) => {
+          if (err) {
+            console.error("Bcrypt compare failed")
+            return null
+          }
+          if (result) {
+            console.log("Successful authentication!")
+          } else {
+            console.log("Unsuccessful password check")
+            return null
+          }
+        }
+        )
         // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
+        const user = { id: "1", name: "J Smith", email: credentials.identifier }
+        //const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
 
         if (user) {
           // Any object returned will be saved in `user` property of the JWT
@@ -73,22 +95,22 @@ export const authOptions: NextAuthOptions = {
           .setTo(recipients)
           .setReplyTo(sentFrom)
           .setSubject(`Sign in to ${host}`)
-          .setHtml(html({url, host}))
-          .setText(text({url, host}));
-          
+          .setHtml(html({ url, host }))
+          .setText(text({ url, host }));
+
         mailerSend.email.send(emailParams)
           .then((response) => console.log(response))
           .catch((error) => console.log(error))
       },
     }),
     GithubProvider({
-      id:"github",
+      id: "github",
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
       allowDangerousEmailAccountLinking: true,
     }),
     NetlifyProvider({
-      id:"netlify",
+      id: "netlify",
       clientId: process.env.NETLIFY_ID,
       clientSecret: process.env.NETLIFY_SECRET,
       allowDangerousEmailAccountLinking: true,
@@ -101,12 +123,12 @@ export const authOptions: NextAuthOptions = {
     colorScheme: "auto",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug:true,
+  debug: true,
 }
 
 export default NextAuth(authOptions)
 
-function html(params: { url: string; host: string}) {
+function html(params: { url: string; host: string }) {
   const { url, host } = params
 
   const escapedHost = host.replace(/\./g, "&#8203;.")

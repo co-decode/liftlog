@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { buttonVariants } from "./ui/button";
 import { Button } from "@/components/ui/button";
+import { LucideIcon } from "lucide-react";
 
 interface SiteFooterProps {
   className: string;
-  footerItems: { icon: React.ReactNode; href: string }[];
+  footerItems: { icon: LucideIcon; href: string }[];
   setWarning?: React.Dispatch<React.SetStateAction<string>>;
   loading?: boolean;
 }
@@ -45,7 +46,7 @@ export function SiteFooter({
               href={item.href}
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
             >
-              {item.icon}
+             <item.icon /> 
             </Link>
           </Button>
         ))}

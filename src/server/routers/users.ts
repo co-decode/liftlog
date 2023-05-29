@@ -37,6 +37,18 @@ const userExerciseSessions = Prisma.validator<Prisma.UserSelect>()({
 });
 
 export const usersRouter = router({
+  checkCreds: procedure
+    .input(z.string().email())
+    .query(async ({ input }) => {
+      return await prisma.user.findUnique({
+        where: {
+          email: input,
+        },
+        select: {
+          password: true,
+        }
+      })
+    }),
   findAll: procedure
     .input(z.string().email())
     .query(async ({ input }) => {
@@ -114,3 +126,5 @@ export const usersRouter = router({
       });
     }),
 })
+
+export const caller = usersRouter.createCaller({})
