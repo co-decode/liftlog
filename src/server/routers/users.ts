@@ -1,40 +1,8 @@
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
 import { router, procedure } from "../trpc";
 import { prisma } from "../prisma";
 import bcrypt from "bcrypt"
-
-const setValid = Prisma.validator<Prisma.SetSelect>()({
-  setNumber:true,
-  reps:true,
-  weight:true,
-})
-
-const exValid = Prisma.validator<Prisma.ExerciseSelect>()({
-  name:true,
-  sets: {
-    select: setValid
-  },
-})
-
-const exSessValid = Prisma.validator<Prisma.ExerciseSessionSelect>()({
-  sid:true,
-  date:true,
-  exercises: {
-    select: exValid
-  },
-  userId: false
-})
-
-const userExerciseSessions = Prisma.validator<Prisma.UserSelect>()({
-  name: false,
-  id: false,
-  email: false,
-  emailVerified: false,
-  exerciseSessions: {
-    select: exSessValid
-  }
-});
+import { sessionSchemaT } from "@/types/schema-receiving";
 
 export const usersRouter = router({
   checkCreds: procedure
@@ -46,13 +14,15 @@ export const usersRouter = router({
         },
         select: {
           password: true,
+          name: true,
+          id: true,
         }
       })
     }),
   findAll: procedure
     .input(z.string().email())
     .query(async ({ input }) => {
-      return await prisma.user.findUnique({
+      const allSessions = await prisma.user.findUnique({
         where: {
           email: input
         },
@@ -61,12 +31,16 @@ export const usersRouter = router({
             orderBy: { date: 'desc' },
             select: {
               date: true,
+              sid: true,
               exercises: {
                 select: {
+                  id: true,
                   name: true,
                   sets: {
                     orderBy: { setNumber: 'asc' },
                     select: {
+                      id: true,
+                      setNumber: true, //Either split type defs, or remove sorting, because setNumber is not necessary to return otherwise
                       reps: true,
                       weight: true,
                     }
@@ -77,12 +51,24 @@ export const usersRouter = router({
           }
         },
       });
+      return {exerciseSessions:allSessions?.exerciseSessions.map(sess => ({
+        ...sess,
+        date: sess.date,
+        exercises: sess.exercises.map(ex => ({
+          ...ex,
+          sets: ex.sets.map(set => ({
+            ...set,
+            weight: Number(set.weight)
+          }))
+        }))
+      }))}
     }),
   insertOne: procedure
     .input(
       z.object({
-        username: z.string(),
-        password: z.string(),
+        email: z.string().email(),
+        username: z.string().optional(),
+        password: z.string().min(5),
       }),
     )
     .mutation(async ({ input }) => {
@@ -90,6 +76,7 @@ export const usersRouter = router({
       const hashedPassword = await bcrypt.hash(input.password, salt)
       return await prisma.user.create({
         data: {
+          email: input.email,
           name: input.username,
           password: hashedPassword,
         },

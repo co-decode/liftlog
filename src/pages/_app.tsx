@@ -6,6 +6,7 @@ import Head from "next/head";
 import { ThemeProvider } from "@/components/theme-provider";
 import { trpc } from "../utils/trpc";
 import { SessionProvider } from "next-auth/react";
+import ContextProvider from "@/components/auth-and-context"
 import { Inter } from "next/font/google";
 
 const fontSans = Inter({
@@ -36,7 +37,9 @@ const App = ({
 
       <SessionProvider session={session}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ContextProvider>
           <Component {...pageProps} />
+        </ContextProvider>
         </ThemeProvider>
       </SessionProvider>
     </>

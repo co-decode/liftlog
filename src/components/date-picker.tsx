@@ -16,9 +16,10 @@ import { Input } from "./ui/input"
 interface DatePickerProps {
   date: Date | undefined
   setDate: React.Dispatch<React.SetStateAction<Date | undefined>>
+  edit?: string
 }
 
-export function DatePicker({ date, setDate }: DatePickerProps) {
+export function DatePicker({ date, setDate, edit }: DatePickerProps) {
   const [time, setTime] = React.useState<string>()
 
   const handleTime = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
       <FormControl>
         <Button
           variant={"outline"}
+          disabled={edit === "BREAKDOWN"}
           className={cn(
             "w-[280px] justify-start text-left font-normal",
             !date && "text-muted-foreground"

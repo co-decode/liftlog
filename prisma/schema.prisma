@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Account {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            Int
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   created_at        Int?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -45,6 +45,7 @@ model User {
   accounts         Account[]
   sessions         Session[]
   exerciseSessions ExerciseSession[]
+  Program          Program[]
 }
 
 model VerificationToken {
@@ -71,6 +72,8 @@ model Exercise {
   sessionId Int
   session   ExerciseSession @relation(fields: [sessionId], references: [sid], onDelete: Cascade)
   sets      Set[]
+
+  @@unique([sessionId, name])
 }
 
 model Set {
@@ -82,4 +85,38 @@ model Set {
   exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
   @@unique([exerciseId, setNumber])
+}
+
+model Program {
+  programId       Int              @id @default(autoincrement())
+  userId          Int
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programName     String
+  splitLength     Int
+  programSessions ProgramSession[]
+
+  @@unique([userId, programName])
+}
+
+model ProgramSession {
+  id          Int          @id @default(autoincrement())
+  programId   Int
+  program     Program      @relation(fields: [programId], references: [programId], onDelete: Cascade)
+  splitIndex  Int
+  name        String
+  programSets ProgramSet[]
+
+  @@unique([programId, splitIndex])
+}
+
+model ProgramSet {
+  id               Int            @id @default(autoincrement())
+  programSessionId Int
+  programSession   ProgramSession @relation(fields: [programSessionId], references: [id], onDelete: Cascade)
+  setIndex         Int
+  exerciseIndex    Int
+  exerciseName     String
+
+  @@unique([programSessionId, setIndex, exerciseIndex])
+  @@unique([programSessionId, setIndex, exerciseName])
 }

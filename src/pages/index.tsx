@@ -6,15 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-
-const navItems = [
-    { title: "Dashboard", href: "#" },
-    { title: "Workouts", href: "#" },
-    { title: "Sessions", href: "#" },
-    { title: "Schedule", href: "#" },
-    { title: "Community", href: "#" },
-    { title: "Exercise Library", href: "#" }
-]
+import { landingConfig } from "@/config/landing-config";
 
 export default function IndexPage() {
   const { data: session, status } = useSession();
@@ -26,7 +18,7 @@ export default function IndexPage() {
     }
   }, [session, router]);
 
-  if (status === "loading") return (
+  if (status === "loading" || status === "authenticated") return (
     <div>LOADING</div>
   )
 
@@ -34,7 +26,7 @@ export default function IndexPage() {
     <>
       <header className="container z-40 bg-background">
         <div className="flex h-20 items-center justify-between py-6">
-          <MainNav items={navItems}/>
+          <MainNav items={landingConfig} />
           <nav>
             <Link
               href="/login"
@@ -51,3 +43,8 @@ export default function IndexPage() {
     </>
   );
 }
+/*
+email: "cody@ross.com",
+  username: "Cody",
+    password: "secretPassword",
+    */

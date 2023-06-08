@@ -101,6 +101,7 @@ export function DataTable({
                       </PopoverTrigger>
                       <PopoverContent 
                         className="cursor-pointer hover:bg-muted"
+                        role="button"
                         onClick={() => router.push(`/sessions/${row.original.date}`)}
                       >
                         {row.original.exercises.map((ex: z.infer<typeof ExerciseSchema>)  =>

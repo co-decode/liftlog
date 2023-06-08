@@ -59,10 +59,10 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
           onSelect={async (event) => {
             event.preventDefault();
             const data = await signOut({
-              callbackUrl: `${window.location.origin}/login`,
+              //callbackUrl: `${window.location.origin}/login`,
               redirect: false,
             });
-            router.push(data.url)
+            //router.push(data.url)
           }}
         >
           <Icons.logout className="w-4 h-4 mr-2" />

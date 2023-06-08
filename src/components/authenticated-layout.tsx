@@ -1,4 +1,3 @@
-// Bit of unnecessary prop drilling going on,
 // Maybe derive nav and footer items from router.pathname?
 import { useRouter } from "next/router";
 import { MainNav } from "./main-nav";
@@ -35,13 +34,19 @@ export default function AuthenticatedLayout({
     }
   }, [session, status, router]);
 
-  const getSessions = trpc.users.findAll.useQuery("cody@cody.com");
+  const getSessions = trpc.users.findAll
+    .useQuery("cody@cody.com", {
+      enabled: false
+    });
 
   useEffect(() => {
-    if (!exerciseSessions && setExerciseSessions && getSessions.data) {
-      setExerciseSessions(getSessions.data.exerciseSessions);
+    if (!exerciseSessions && setExerciseSessions) {
+      getSessions.refetch()
+      if (getSessions.data) {
+        setExerciseSessions(getSessions.data.exerciseSessions);
+      }
     }
-  }, [exerciseSessions, getSessions.data, setExerciseSessions]);
+  }, [exerciseSessions, setExerciseSessions, getSessions.data, getSessions]);
 
   return (
     <div className="flex min-h-screen flex-col space-y-6">
