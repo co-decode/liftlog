@@ -25,7 +25,7 @@ export default function AuthenticatedLayout({
   className = "",
 }: AuthenticatedLayoutProps) {
   const router = useRouter();
-  const { exerciseSessions, setter: setExerciseSessions } = useAuth();
+  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit } = useAuth();
   const { status, data: session } = useSession();
 
   useEffect(() => {
@@ -34,19 +34,45 @@ export default function AuthenticatedLayout({
     }
   }, [session, status, router]);
 
-  const getSessions = trpc.users.findAll
-    .useQuery("cody@cody.com", {
+  const getSessions = trpc.sessions.findSessions
+    .useQuery(session?.user?.id, {
       enabled: false
     });
 
+  const getPrograms = trpc.programs.findPrograms.useQuery(
+    session?.user?.id,
+    { enabled: false }
+  )
+
+
+  // Ideally would want to combine call for exercises and programs into a transaction
   useEffect(() => {
-    if (!exerciseSessions && setExerciseSessions) {
+    if (exerciseSessions) return
+    if (session && !getSessions.data)
       getSessions.refetch()
-      if (getSessions.data) {
-        setExerciseSessions(getSessions.data.exerciseSessions);
-      }
-    }
-  }, [exerciseSessions, setExerciseSessions, getSessions.data, getSessions]);
+    else if (getSessions.data && setExerciseSessions)
+      setExerciseSessions(
+        getSessions.data.map(sess => ({
+          ...sess,
+          date: new Date(sess.date),
+        }))
+      )
+    // Is it possible for the user's information to be persisted beyond log out?
+  }, [exerciseSessions, setExerciseSessions, getSessions.data, getSessions, session]);
+
+  useEffect(() => {
+    const unitPreference = localStorage.getItem("weightUnit") as "KG" | "LB"
+    if (unitPreference && unitPreference !== weightUnit && setWeightUnit)
+      setWeightUnit(unitPreference)
+  }, [weightUnit, setWeightUnit])
+
+  useEffect(() => {
+    if (programs) return
+    if (session && !getPrograms.data)
+      getPrograms.refetch()
+    if (getPrograms.data && setPrograms)
+      setPrograms(getPrograms.data)
+  }, [programs, setPrograms, getPrograms.data, getPrograms, session])
 
   return (
     <div className="flex min-h-screen flex-col space-y-6">

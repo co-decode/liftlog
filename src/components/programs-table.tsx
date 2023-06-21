@@ -22,24 +22,25 @@ import {
 } from "@/components/ui/popover"
 import { z } from "zod";
 import { useRouter } from "next/router";
-import { useAuth } from "./auth-and-context";
-
-const SetSchema = z.object({
-  reps: z.number(),
-  weight: z.number(),
-});
 
 const ExerciseSchema = z.object({
+  setIndex: z.number(),
+  exerciseIndex: z.number(),
+  exerciseName: z.string()
+});
+
+const SessionSchema = z.object({
   name: z.string(),
-  sets: z.array(SetSchema),
+  programSets: z.array(ExerciseSchema),
 });
 
-const ExerciseSessionSchema = z.object({
-  date: z.coerce.date(),
-  exercises: z.array(ExerciseSchema),
+const ProgramSchema = z.object({
+  splitLength: z.number(),
+  programName: z.string(),
+  programSessions: z.array(SessionSchema),
 });
 
-export type Schema = z.infer<typeof ExerciseSessionSchema>
+export type Schema = z.infer<typeof ProgramSchema>
 
 
 interface DataTableProps {
@@ -54,7 +55,6 @@ export function DataTable({
   className
 }: DataTableProps) {
   const router = useRouter()
-  const { weightUnit } = useAuth()
   const table = useReactTable({
     data,
     columns,
@@ -63,6 +63,7 @@ export function DataTable({
 
   function handleClick(row: Row<Schema>) {
     console.log(row.original)
+    router.push(`/programs/name-${row.original.programName}`)
   }
 
   return (
@@ -97,25 +98,6 @@ export function DataTable({
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="text-center">
-                    <Popover>
-                      <PopoverTrigger className="absolute h-full w-full top-0 left-0">
-                        <span className="absolute left-0 invisible">Open</span>
-                      </PopoverTrigger>
-                      <PopoverContent 
-                        className="cursor-pointer hover:bg-muted"
-                        role="button"
-                        onClick={() => router.push(`/sessions/${row.original.date.toISOString()}`)}
-                      >
-                        {row.original.exercises.map((ex: z.infer<typeof ExerciseSchema>)  =>
-                          <div key={ex.name} className="capitalize">
-                            {ex.name}:&nbsp;{String(Math.floor(ex.sets.reduce((a,v) => {
-                              const setTonnage = v.reps * Number(v.weight)
-                              return a + setTonnage
-                              }, 0) * (weightUnit === "KG" ? 1 : 2.205)))}{` ${weightUnit}`}
-                          </div>
-                        )}
-                      </PopoverContent>
-                    </Popover>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

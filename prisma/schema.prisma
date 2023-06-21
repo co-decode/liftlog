@@ -93,20 +93,32 @@ model Program {
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   programName     String
   splitLength     Int
+  split           SplitIndex[]
   programSessions ProgramSession[]
 
   @@unique([userId, programName])
 }
 
 model ProgramSession {
-  id          Int          @id @default(autoincrement())
-  programId   Int
-  program     Program      @relation(fields: [programId], references: [programId], onDelete: Cascade)
-  splitIndex  Int
-  name        String
-  programSets ProgramSet[]
+  id           Int          @id @default(autoincrement())
+  programId    Int
+  program      Program      @relation(fields: [programId], references: [programId], onDelete: Cascade)
+  name         String
+  splitIndices SplitIndex[]
+  programSets  ProgramSet[]
 
-  @@unique([programId, splitIndex])
+  @@unique([programId, name])
+}
+
+model SplitIndex {
+  id               Int            @id @default(autoincrement())
+  programSessionId Int
+  programSession   ProgramSession @relation(fields: [programSessionId], references: [id], onDelete: Cascade)
+  programId        Int
+  program          Program        @relation(fields: [programId], references: [programId], onDelete: Cascade)
+  index            Int
+
+  @@unique([programId, index])
 }
 
 model ProgramSet {

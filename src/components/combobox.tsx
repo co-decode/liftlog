@@ -16,6 +16,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CommandList } from "@/components/ui/command";
+import { UseFieldArrayUpdate, UseFormSetValue } from "react-hook-form";
+import { Program } from "@/pages/programs/add";
 
 const frameworks = [
   {
@@ -25,6 +27,10 @@ const frameworks = [
   {
     value: "squat",
     label: "squat",
+  },
+  {
+    value: "back extension",
+    label: "back extension",
   },
   {
     value: "bench press",
@@ -38,15 +44,38 @@ const frameworks = [
     value: "overhead press",
     label: "overhead press",
   },
+  {
+    value: "calf raise",
+    label: "calf raise",
+  },
+  {
+    value: "incline curl",
+    label: "incline curl",
+  },
+  {
+    value: "french press",
+    label: "french press",
+  },
+  {
+    value: "dragon flag",
+    label: "dragon flag",
+  },
+  {
+    value: "incline dumbbell press",
+    label: "incline dumbbell press",
+  },
 ];
 
 interface ComboboxProps {
   value: string | undefined;
-  setValue: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setValue?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  programSetValue?: UseFieldArrayUpdate<Program, `programSessions.${number}.programSets.${number}.sets`>
+  programIndex?: number
   currentExercises: string[]
+
 }
 
-export function Combobox({ value, setValue, currentExercises }: ComboboxProps) {
+export function Combobox({ value, setValue, currentExercises, programSetValue, programIndex }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState(frameworks.slice(0, 2));
 
@@ -62,6 +91,15 @@ export function Combobox({ value, setValue, currentExercises }: ComboboxProps) {
     );
   };
 
+  const handleSelect = (currentValue: string) => {
+    if (setValue)
+      setValue(currentValue === value ? "" : currentValue);
+    else if (programSetValue && programIndex !== undefined) {
+      programSetValue(programIndex, { exerciseName: currentValue })
+    }
+    setOpen(false)
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -69,11 +107,12 @@ export function Combobox({ value, setValue, currentExercises }: ComboboxProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] capitalize justify-between"
+          className={cn("w-[200px] capitalize justify-between", !value && "text-primary/50")}
         >
-          {value
+          {/*value
             ? frameworks.find((framework) => framework.value === value)?.label
-            : "Add Exercise..."}
+            : "Add Exercise..."*/}
+          {setValue ? value || "Add Exercise..." : value || "Choose Exercise..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -87,10 +126,7 @@ export function Combobox({ value, setValue, currentExercises }: ComboboxProps) {
                 <CommandItem
                   key={framework.value}
                   className="capitalize"
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}
+                  onSelect={(currentValue) => handleSelect(currentValue)}
                 >
                   <Check
                     className={cn(

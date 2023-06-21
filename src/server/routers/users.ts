@@ -19,50 +19,6 @@ export const usersRouter = router({
         }
       })
     }),
-  findAll: procedure
-    .input(z.string().email())
-    .query(async ({ input }) => {
-      const allSessions = await prisma.user.findUnique({
-        where: {
-          email: input
-        },
-        select: {
-          exerciseSessions: {
-            orderBy: { date: 'desc' },
-            select: {
-              date: true,
-              sid: true,
-              exercises: {
-                select: {
-                  id: true,
-                  name: true,
-                  sets: {
-                    orderBy: { setNumber: 'asc' },
-                    select: {
-                      id: true,
-                      setNumber: true, //Either split type defs, or remove sorting, because setNumber is not necessary to return otherwise
-                      reps: true,
-                      weight: true,
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-      });
-      return {exerciseSessions:allSessions?.exerciseSessions.map(sess => ({
-        ...sess,
-        date: sess.date,
-        exercises: sess.exercises.map(ex => ({
-          ...ex,
-          sets: ex.sets.map(set => ({
-            ...set,
-            weight: Number(set.weight)
-          }))
-        }))
-      }))}
-    }),
   insertOne: procedure
     .input(
       z.object({

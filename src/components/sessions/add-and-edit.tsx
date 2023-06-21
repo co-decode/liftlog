@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { useLockBody } from "@/hooks/use-lock-body";
 import { sessionSchema } from "@/types/schema-sending";
 import Link from "next/link";
+import { useAuth } from "../auth-and-context";
 
 interface SessionFormProps {
   page: string | undefined;
@@ -142,7 +143,7 @@ export function SessionForm({
             <TableRow
               key={ex.name}
               onClick={() => handleExerciseClick(ex.name, ind)}
-              className="group parent hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
+              className={cn(removeMode && "hover:bg-destructive/5","group parent hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background")}
               role="link"
               tabIndex={0}
             >
@@ -215,6 +216,7 @@ export function ExerciseForm({ form, page, setPage, edit }: ExerciseFormProps) {
     register,
     formState: { errors },
   } = form;
+  const { weightUnit } = useAuth()
   const nestIndex = getValues().exercises.findIndex((ex) => ex.name === page);
   const { fields, remove, append } = useFieldArray({
     control,
@@ -266,7 +268,7 @@ export function ExerciseForm({ form, page, setPage, edit }: ExerciseFormProps) {
           <TableRow>
             <TableHead className="">Set</TableHead>
             <TableHead className="text-right">Reps</TableHead>
-            <TableHead className="text-right">Weight</TableHead>
+            <TableHead className="text-right">Weight{` (${weightUnit})`}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -334,7 +336,7 @@ export function NavigationAlert({ warning, setWarning }: NavigationAlertProps) {
           <CardTitle className="text-center mb-2">Leave the Page?</CardTitle>
           <CardDescription>
             Are you sure you want to navigate away?
-            <br /> Your session entry data will be lost.
+            <br /> Your {warning.slice(1)} entry data will be lost.
           </CardDescription>
         </CardHeader>
         <CardContent>

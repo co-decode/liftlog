@@ -7,7 +7,7 @@ import { z } from "zod";
 // You can use a Zod schema here if you want.
 const SetSchema = z.object({
   reps: z.number(),
-  weight: z.string(),
+  weight: z.number(),
 });
 
 const ExerciseSchema = z.object({
@@ -16,7 +16,8 @@ const ExerciseSchema = z.object({
 });
 
 const ExerciseSessionSchema = z.object({
-  date: z.string(),
+  //date: z.string(),
+  date: z.coerce.date(),
   exercises: z.array(ExerciseSchema),
 });
 
@@ -31,11 +32,11 @@ export const columns: ColumnDef<Schema>[] = [
     accessorKey: "date",
     header: "Date",
     cell: (props: CellContext<Schema, any>) => {
-      const formatDate = new Date(props.getValue());
+      //const formatDate = new Date(props.getValue());
 
       return (
         <span>
-          {new Intl.DateTimeFormat([], {
+          {/*new Intl.DateTimeFormat([], {
             weekday: "short",
             day: "numeric",
             month: "numeric",
@@ -43,7 +44,8 @@ export const columns: ColumnDef<Schema>[] = [
             hour12: false,
             hour: "numeric",
             minute: "2-digit",
-          }).format(formatDate)}
+          }).format(formatDate)*/}
+          {props.getValue().toLocaleString()}
         </span>
       );
     },

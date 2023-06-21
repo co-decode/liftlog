@@ -13,26 +13,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/utils/trpc";
-import { inferProcedureInput } from "@trpc/server";
+import { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 import { Form } from "@/components/ui/form";
 import {
   ExerciseForm,
   NavigationAlert,
   SessionForm,
-} from "@/components/add-and-edit";
+} from "@/components/sessions/add-and-edit";
 import { sessionSchemaT } from "@/types/schema-receiving";
 
 const { navItems, footerItems } = sessionsConfig;
 
-const weightUnit = "kg";
-
-type BreakdownStates = "BREAKDOWN" | "EDIT";
+export type BreakdownStates = "BREAKDOWN" | "EDIT";
 
 export default function SessionBreakdown() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { exerciseSessions, setter } = useAuth();
+  const { exerciseSessions, setExerciseSessions, weightUnit } = useAuth();
   const [page, setPage] = useState<string | undefined>();
   const [warning, setWarning] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -41,15 +39,28 @@ export default function SessionBreakdown() {
   const exSess = useMemo(() => {
     if (exerciseSessions) {
       const sess = exerciseSessions.find(
-        (sess) => sess.date == router.query.session
+        (sess) => sess.date.toISOString() == router.query.session
       );
       if (!sess) return;
-      return sess;
+      if (weightUnit === "KG")
+        return sess;
+      else if (weightUnit === "LB")
+        return {
+          ...sess,
+          exercises: sess.exercises.map(ex => ({
+            ...ex,
+            sets: ex.sets.map(set => ({
+              ...set,
+              weight: Number((set.weight * 2.205).toFixed(2))
+            }))
+          }))
+        }
     }
-  }, [exerciseSessions, router.query.session]);
+  }, [exerciseSessions, router.query.session, weightUnit]);
 
   // This may be better left as an immediately invoked function run within useForm
   // But how do I force it to wait until exSess is found?
+  /*
   const changeSess = useMemo(() => {
     if (!exSess) return;
     const changeSess: z.infer<typeof sessionSchema> = {
@@ -65,13 +76,14 @@ export default function SessionBreakdown() {
     };
     return changeSess;
   }, [exSess]);
+  */
 
   const form = useForm<z.infer<typeof sessionSchema>>({
     resolver: zodResolver(sessionSchema),
-    values: changeSess,
+    values: exSess,
   });
 
-  const createSession = trpc.sessions.updateSession.useMutation({
+  const updateSession = trpc.sessions.updateSession.useMutation({
     onSuccess() {
       console.log("Success!");
     },
@@ -110,7 +122,10 @@ export default function SessionBreakdown() {
           sessionId: exSess.sid,
           sets: values.exercises
             .find((ex) => ex.name === name)!
-            .sets.map((s) => ({ ...s })),
+            .sets.map((s) => ({ 
+              ...s,
+              weight: (weightUnit === "KG" ? s.weight : Number((s.weight * 0.4536).toFixed(2)))
+            })),
         };
       })
       : null;
@@ -126,20 +141,19 @@ export default function SessionBreakdown() {
         // Positive: sets to remove, Negative: sets to add
         const difference = originalSets.length - editedSets.length;
 
-        // !! Check whether index is right here:
-        const setsToRemove =
+        const setsToDelete =
           difference > 0
             ? originalSets.slice(-difference).map((s) => s.id)
             : null;
 
-        console.log(setsToRemove)
+        console.log(setsToDelete)
 
-        // !! Check whether index is right here:
         const setsToAdd =
           difference >= 0
             ? null
             : editedSets.slice(difference).map((s) => ({
               ...s,
+              weight: (weightUnit === "KG" ? s.weight : Number((s.weight * 0.4536).toFixed(2))),
               exerciseId: original!.id,
             }));
 
@@ -153,19 +167,19 @@ export default function SessionBreakdown() {
           if (originalSets[i].reps !== editedSets[i].reps)
             data.reps = editedSets[i].reps;
           if (Number(originalSets[i].weight) !== editedSets[i].weight)
-            data.weight = editedSets[i].weight;
+            data.weight = (weightUnit === "KG" ? editedSets[i].weight : Number((editedSets[i].weight * 0.4536).toFixed(2)));
           if (Object.keys(data))
             toUpdate.push({ id: originalSets[i].id, data });
         }
         const setsToUpdate = toUpdate.length ? toUpdate : null;
 
         return {
-          setsToRemove,
+          setsToDelete,
           setsToAdd,
           setsToUpdate,
         };
       })
-      .filter((item) => item.setsToRemove || item.setsToAdd || item.setsToUpdate);
+      .filter((item) => item.setsToDelete || item.setsToAdd || item.setsToUpdate);
 
     const exercisesToUpdate = exercisesToUpdateArray.length
       ? exercisesToUpdateArray
@@ -179,75 +193,74 @@ export default function SessionBreakdown() {
       exercisesToUpdate
     };
     try {
-      const result = await createSession.mutateAsync(input);
+      type Output = inferProcedureOutput<AppRouter["sessions"]["updateSession"]>
+      const result = await updateSession.mutateAsync(input) as Output
       if (result === null) return // handle error?
-
+      result.date = new Date(result.date)
       // Insertion sort modified session by date
       let index = exerciseSessions!.findIndex(s => s.sid === exSess.sid)
       const replacement = [...exerciseSessions!]
       replacement[index] = result
       for (index; index > 0; index--)
-        if (new Date(replacement[index].date) > new Date(replacement[index-1].date)) {
-          let swap = replacement[index-1]
-          replacement[index-1] = replacement[index]
+        if (new Date(replacement[index].date) > new Date(replacement[index - 1].date)) {
+          let swap = replacement[index - 1]
+          replacement[index - 1] = replacement[index]
           replacement[index] = swap
         } else break;
       for (index; index < replacement.length - 1; index++)
-        if (new Date(replacement[index].date) < new Date(replacement[index+1].date)) {
-          let swap = replacement[index+1]
-          replacement[index+1] = replacement[index]
+        if (new Date(replacement[index].date) < new Date(replacement[index + 1].date)) {
+          let swap = replacement[index + 1]
+          replacement[index + 1] = replacement[index]
           replacement[index] = swap
         } else break;
 
-      setter!(replacement)
+      setExerciseSessions!(replacement)
 
     } catch (cause) {
-        console.error({ cause }, "Failed to insert");
-      }
-      router.push("/sessions");
-      setLoading(false);
-    };
+      console.error({ cause }, "Failed to insert");
+    }
+    router.push("/sessions");
+    setLoading(false);
+  };
 
-    return (
-      <Layout
-        navItems={navItems}
-        footerItems={footerItems}
-        setWarning={edit === "EDIT" ? setWarning : undefined}
-      >
-        {status !== "authenticated" ? null : (
-          <div className="flex w-full flex-1 flex-col items-center overflow-hidden">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 mb-20"
-              >
-                {!page ? (
-                  <SessionForm
-                    page={page}
-                    setPage={setPage}
-                    form={form}
-                    loading={loading}
-                    edit={edit}
-                    setEdit={setEdit}
-                  />
-                ) : (
-                  <ExerciseForm
-                    form={form}
-                    page={page}
-                    setPage={setPage}
-                    edit={edit}
-                  />
-                )}
-              </form>
-            </Form>
-          </div>
-        )}
-        {warning ? (
-          <NavigationAlert warning={warning} setWarning={setWarning} />
-        ) : null}
-      </Layout>
-    );
-  }
+  return (
+    <Layout
+      navItems={navItems}
+      footerItems={footerItems}
+      setWarning={edit === "EDIT" ? setWarning : undefined}
+    >
+      <div className="flex w-full flex-1 flex-col items-center overflow-hidden">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 mb-20"
+          >
+            {!page ? (
+              <SessionForm
+                page={page}
+                setPage={setPage}
+                form={form}
+                loading={loading}
+                edit={edit}
+                setEdit={setEdit}
+              />
+            ) : (
+              <ExerciseForm
+                form={form}
+                page={page}
+                setPage={setPage}
+                edit={edit}
+              />
+            )}
+          </form>
+        </Form>
+      </div>
+      {warning ? (
+        <NavigationAlert warning={warning} setWarning={setWarning} />
+      ) : null}
+    </Layout>
+  );
+}
 
 /*
       <div>Query:&nbsp;{router.query.session}

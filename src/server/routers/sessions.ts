@@ -4,24 +4,124 @@ import { prisma } from "../prisma";
 import { userSchema, updateSchema } from "@/types/schema-sending";
 
 export const sessionsRouter = router({
-  findAll: procedure.query(async () => {
-    return await prisma.user.findMany({
-      //select: allUser,
-    });
-  }),
+  findSessions: procedure
+    .input(z.number().int())
+    .query(async ({ input: userId }) => {
+      console.log("CALLED")
+      const allSessions = await prisma.user.findUnique({
+        where: {
+          id: userId
+        },
+        select: {
+          exerciseSessions: {
+            orderBy: { date: 'desc' },
+            select: {
+              date: true,
+              sid: true,
+              exercises: {
+                select: {
+                  id: true,
+                  name: true,
+                  sets: {
+                    orderBy: { setNumber: 'asc' },
+                    select: {
+                      id: true,
+                      //Either split type defs, or remove sorting, because setNumber is not necessary to return otherwise
+                      setNumber: true,
+                      reps: true,
+                      weight: true,
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+      });
+      return allSessions?.exerciseSessions.map(sess => ({
+          ...sess,
+          date: sess.date,
+          exercises: sess.exercises.map(ex => ({
+            ...ex,
+            sets: ex.sets.map(set => ({
+              ...set,
+              weight: Number(set.weight)
+            }))
+          }))
+        }))
+    }),
+  createSession: procedure // Creates a Session for user
+    .input(userSchema)
+    .mutation(async ({ input }) => {
+      const { userId, exerciseSessions: eSess } = input;
+      const session = await prisma.$transaction(async (prisma) => {
+        const result = await prisma.exerciseSession.create({
+          data: {
+            userId,
+            date: new Date(eSess.date),
+
+            exercises: {
+              create: eSess.exercises.map((ex) => {
+                return {
+                  name: ex.name,
+                  sets: {
+                    createMany: { data: ex.sets },
+                  },
+                };
+              }),
+            },
+          },
+        });
+        return await prisma.exerciseSession.findUnique({
+          where: { sid: result.sid },
+          select: {
+            date: true,
+            sid: true,
+            exercises: {
+              select: {
+                id: true,
+                name: true,
+                sets: {
+                  orderBy: { setNumber: 'asc' },
+                  select: {
+                    id: true,
+                    //Either split type defs, or remove sorting, because setNumber is not necessary to return otherwise
+                    setNumber: true,
+                    reps: true,
+                    weight: true,
+                  }
+                }
+              }
+            }
+          }
+        })
+      })
+      return session ? {
+          ...session,
+          exercises: session?.exercises.map(ex => ({
+            ...ex,
+            sets: ex.sets.map(set => ({
+              ...set,
+              weight: Number(set.weight)
+            }))
+          }))
+      }
+      : null
+    }),
   updateOne: procedure // Creates a Session for user
     .input(userSchema)
     .mutation(async ({ input }) => {
-      const { email, exerciseSessions: eSess } = input;
+      const { userId, exerciseSessions: eSess } = input;
 
-      return await prisma.user.update({
-        where: { email },
+      const result = await prisma.user.update({
+        where: { id: userId },
         data: {
           exerciseSessions: {
             create: [
               {
                 /* Will manual conversion to Date cause issues? */
                 date: new Date(eSess.date),
+
                 exercises: {
                   create: eSess.exercises.map((ex) => {
                     return {
@@ -36,7 +136,33 @@ export const sessionsRouter = router({
             ],
           },
         },
+        select: {
+          exerciseSessions: {
+            orderBy: { date: 'desc' },
+            select: {
+              date: true,
+              sid: true,
+              exercises: {
+                select: {
+                  id: true,
+                  name: true,
+                  sets: {
+                    orderBy: { setNumber: 'asc' },
+                    select: {
+                      id: true,
+                      //Either split type defs, or remove sorting, because setNumber is not necessary to return otherwise
+                      setNumber: true,
+                      reps: true,
+                      weight: true,
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       });
+      console.log(result)
     }),
   updateSession: procedure
     .input(
@@ -62,7 +188,7 @@ export const sessionsRouter = router({
         exercisesToUpdate: z
           .array(
             z.object({
-              setsToRemove: z.array(z.number().int()).nullable(),
+              setsToDelete: z.array(z.number().int()).nullable(),
               setsToAdd: z
                 .array(
                   z.object({
@@ -127,9 +253,9 @@ export const sessionsRouter = router({
         if (exercisesToUpdate)
           for (const exercise of exercisesToUpdate) {
             // // Delete removed sets
-            if (exercise.setsToRemove?.length) {
+            if (exercise.setsToDelete?.length) {
               await prisma.set.deleteMany({
-                where: { id: { in: exercise.setsToRemove } },
+                where: { id: { in: exercise.setsToDelete } },
               });
             }
             // // Create new sets

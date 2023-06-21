@@ -26,7 +26,7 @@ export type sessionSchemaT = z.infer<typeof sessionSchema>
 
 /* Used to create One session for the user */
 export const userSchema = z.object({
-  email: z.string().email(),
+  userId: z.number().int(),
   exerciseSessions: sessionSchema,
 })
 export type userSchemaT = z.infer<typeof userSchema>

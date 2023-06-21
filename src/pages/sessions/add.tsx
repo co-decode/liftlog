@@ -13,15 +13,22 @@ import {
 
 import { Form } from "@/components/ui/form";
 import { trpc } from "@/utils/trpc";
-import { inferProcedureInput } from "@trpc/server";
+import { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 import { sessionSchema } from "@/types/schema-sending";
-import { ExerciseForm, NavigationAlert, SessionForm } from "@/components/add-and-edit";
+import { ExerciseForm, NavigationAlert, SessionForm } from "@/components/sessions/add-and-edit";
+import { Sessions, useAuth } from "@/components/auth-and-context";
 
 const { navItems, footerItems } = addConfig
 
 export default function AddPage() {
   const { data: session, status } = useSession();
+  const { 
+    exerciseSessions,
+    setExerciseSessions,
+    workoutSummary,
+    weightUnit,
+  } = useAuth()
   const [page, setPage] = useState<string | undefined>();
   const [warning, setWarning] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -30,10 +37,11 @@ export default function AddPage() {
 
   const form = useForm<z.infer<typeof sessionSchema>>({
     resolver: zodResolver(sessionSchema),
+    values: workoutSummary || undefined
     //shouldUnregister: true,
   });
 
-  const createSession = trpc.sessions.updateOne.useMutation({
+  const createSession = trpc.sessions.createSession.useMutation({
     onSuccess() {
       console.log("Success!");
     },
@@ -44,14 +52,34 @@ export default function AddPage() {
     values
   ) => {
     setLoading(true);
-    type Input = inferProcedureInput<AppRouter["sessions"]["updateOne"]>;
-    if (!session || !session.user || !session.user.email) return;
+    type Input = inferProcedureInput<AppRouter["sessions"]["createSession"]>;
+    if (!session || !session.user || !session.user.id) return;
     const input: Input = {
-      email: "cody@cody.com",
-      exerciseSessions: values,
+      userId: session!.user.id,
+      exerciseSessions: {...values, 
+        exercises: values.exercises.map(ex => ({
+          ...ex,
+          sets: ex.sets.map(set => ({
+            ...set,
+            weight: Number((set.weight * (weightUnit === "KG" ? 1 : 0.4536)).toFixed(2)),
+          }))
+        }))
+      }
     };
     try {
-      await createSession.mutateAsync(input);
+      type Output = inferProcedureOutput<AppRouter["sessions"]["createSession"]>
+      const result = await createSession.mutateAsync(input) as Output
+      if (result === null) return; // handle error?
+      result.date = new Date(result.date)
+      const replacement = [...exerciseSessions!, result]
+      // Insertion sort modified session by date
+      for (let index = replacement.length - 1; index > 0; index--)
+        if (replacement[index].date > replacement[index-1].date) {
+          let swap = replacement[index-1]
+          replacement[index-1] = replacement[index]
+          replacement[index] = swap
+        } else break;
+      setExerciseSessions!(replacement)
     } catch (cause) {
       console.error({ cause }, "Failed to insert");
     }

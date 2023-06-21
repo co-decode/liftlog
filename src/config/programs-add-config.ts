@@ -1,7 +1,7 @@
 import { Icons } from "@/components/icons"
 import { AuthenticatedConfig } from "@/types"
 
-export const sessionsConfig: AuthenticatedConfig = {
+export const programsAddConfig: AuthenticatedConfig = {
 
   navItems: [
     { title: "Dashboard", href: "/dashboard" },
@@ -14,7 +14,7 @@ export const sessionsConfig: AuthenticatedConfig = {
 
   footerItems: [
     { icon: Icons.logout, href: "/dashboard" },
-    { icon: Icons.add, href: "/sessions/add" },
-    { icon: Icons.graph, href: "/analysis" },
+    { icon: Icons.dumbbell, href: "/programs" },
+    { icon: Icons.list, href: "/sessions" },
   ]
 }

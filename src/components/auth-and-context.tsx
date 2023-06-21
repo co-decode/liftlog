@@ -5,33 +5,64 @@ import React, {
   useContext,
   useState,
 } from "react";
-import { z } from "zod";
-import { sessionSchema } from "@/types/schema-receiving";
+import { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
+import { AppRouter } from "@/server/routers/_app";
 
-export type Schema = z.infer<typeof sessionSchema>;
+
+export type Programs = inferProcedureOutput<AppRouter["programs"]["findPrograms"]>
+export type Sessions = NonNullable<inferProcedureOutput<AppRouter["sessions"]["findSessions"]>>
+type ProgramSession = {
+  programName: string,
+  programSession: Programs[number]["programSessions"][number]
+}
+export type Summary = inferProcedureInput<AppRouter["sessions"]["createSession"]>["exerciseSessions"]
 
 interface AuthContextValue {
-  exerciseSessions?: Schema[]
-  setter?: Dispatch<SetStateAction<Schema[] | undefined>>;
+  programs?: Programs
+  setPrograms?: Dispatch<SetStateAction<Programs | undefined>>
+
+  exerciseSessions?: Sessions
+  setExerciseSessions?: Dispatch<SetStateAction<Sessions | undefined>>;
+
+  selectedProgramSession?: ProgramSession
+  setSelectedProgramSession?: Dispatch<SetStateAction<ProgramSession | undefined>>
+  
+  workoutSummary?: Summary
+  setWorkoutSummary?: Dispatch<SetStateAction<Summary | undefined>>
+
+  weightUnit: "KG" | "LB"
+  setWeightUnit?: Dispatch<SetStateAction<"KG" | "LB">>
 }
 
-const AuthContext = createContext<AuthContextValue>({
-  exerciseSessions: undefined,
-  setter: undefined,
-});
+const AuthContext = createContext<AuthContextValue>({ weightUnit: "KG" });
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AuthProvider({ 
+export default function AuthProvider({
   children,
 }: AuthenticatedLayoutProps) {
-  const [exerciseSessions, setExerciseSessions] = useState<Schema[]>();
+  const [exerciseSessions, setExerciseSessions] = useState<Sessions>();
+  const [programs, setPrograms] = useState<Programs>();
+  const [selectedProgramSession, setSelectedProgramSession] = useState<ProgramSession>()
+  const [workoutSummary, setWorkoutSummary] = useState<Summary>()
+  const [weightUnit, setWeightUnit] = useState<"KG" | "LB">("KG")
 
   return (
-    <AuthContext.Provider value={{ exerciseSessions, setter:setExerciseSessions}}>
-        {children}
+    <AuthContext.Provider value={{
+      exerciseSessions,
+      setExerciseSessions,
+      programs,
+      setPrograms,
+      selectedProgramSession,
+      setSelectedProgramSession,
+      workoutSummary,
+      setWorkoutSummary,
+      weightUnit,
+      setWeightUnit,
+    }}>
+      {children}
     </AuthContext.Provider>
   );
 }
