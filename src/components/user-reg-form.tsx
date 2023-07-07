@@ -48,7 +48,7 @@ export function UserRegForm({
 
     const signInResult = await signIn("email", {
       email: data.email.toLowerCase(),
-      redirect: false,
+      //redirect: false,
       callbackUrl: "/dashboard",
     })
 
@@ -116,7 +116,8 @@ export function UserRegForm({
           className={cn(buttonVariants({ variant: "outline" }))}
           onClick={() => {
             setIsGitHubLoading(true);
-            signIn("github", { redirect: false });
+            //signIn("github", { redirect: false });
+            signIn("github");
           }}
           disabled={isLoading || isGitHubLoading || isNetlifyLoading}
         >
@@ -132,7 +133,8 @@ export function UserRegForm({
           className={cn(buttonVariants({ variant: "outline" }), "p-0")}
           onClick={() => {
             setIsNetlifyLoading(true);
-            signIn("netlify", { redirect: false });
+            //signIn("netlify", { redirect: false });
+            signIn("netlify");
           }}
           disabled={isLoading || isGitHubLoading || isNetlifyLoading}
         >
