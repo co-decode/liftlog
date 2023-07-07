@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { CommandList } from "@/components/ui/command";
 import { UseFieldArrayUpdate, UseFormSetValue } from "react-hook-form";
-import { Program } from "@/pages/programs/add";
+import { Program } from "@/components/programs/add-and-edit";
 
 const frameworks = [
   {

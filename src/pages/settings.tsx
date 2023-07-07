@@ -1,30 +1,20 @@
 import Layout from "@/components/authenticated-layout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { dashboardConfig } from "@/config/dashboard-config";
-import { Programs, useAuth } from "@/components/auth-and-context";
+import { useAuth } from "@/components/auth-and-context";
 import { Button } from "@/components/ui/button";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DatePicker } from "@/components/settings-date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UseFormReturn, useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { trpc } from "@/utils/trpc";
 import { inferProcedureInput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 
 const { navItems, footerItems } = dashboardConfig;
-const formSchema = z.object({
-  startDate: z.coerce.date()
-})
-
-type Program = Programs[number];
-type ProgramSession = Program["programSessions"][number];
 
 export default function Settings() {
   const { data } = useSession()

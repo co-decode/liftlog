@@ -3,7 +3,6 @@ import Layout from "@/components/authenticated-layout";
 import { Sessions, useAuth } from "@/components/auth-and-context";
 import { scheduleConfig } from "@/config/schedule-config";
 import { Calendar } from "@/components/ui/calendar";
-import { useRouter } from "next/router";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -86,9 +85,6 @@ export default function Schedule() {
               <Separator />
             </CardHeader>
             <CardContent className="text-sm font-medium leading-none grid gap-2">
-              {/*<div className="mt-1">
-                Exercises:&nbsp;{preview.exercises.length}
-              </div>*/}
               {preview.exercises.map(ex => <div key={ex.name} className="capitalize">{ex.name}</div>)}
               <Separator />
 

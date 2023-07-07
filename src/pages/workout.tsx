@@ -117,8 +117,6 @@ function WorkoutExercise({
   programName,
   sessionName,
   sequence,
-  started,
-  setStarted,
 }: WorkoutExerciseProps) {
   const { setWorkoutSummary } = useAuth();
   const router = useRouter();
@@ -294,10 +292,6 @@ function Stopwatch({ className, elapsedTime, setElapsedTime }: StopwatchProps) {
     };
     setStartTime(performance.now());
     animationFrameRef.current = requestAnimationFrame(updateTimer);
-    //else if (!started && animationFrameRef.current) {
-    //  cancelAnimationFrame(animationFrameRef.current);
-    //  setElapsedTime(0);
-    //}
   }, [startTime, setElapsedTime]);
 
   return <p className={className}>{formatTime(elapsedTime)}</p>;

@@ -72,7 +72,7 @@ function getAverageWeight(dataSessions: DataSession[], weightUnit: "KG" | "LB") 
 }
 
 
-type ReducedSets = ExSessions[number]["exercises"][number]["sets"][]
+type ReducedSets = NonNullable<ExSessions>[number]["exercises"][number]["sets"][]
 
 export default function Analysis() {
   const { exerciseSessions, weightUnit } = useAuth();
@@ -103,7 +103,7 @@ export default function Analysis() {
       return getAverageWeight(dataSessions, weightUnit)
     if (accumulator === "MAXIMUMWEIGHT")
       return getMaximumWeight(dataSessions, weightUnit)
-  }, [dataSessions, accumulator])
+  }, [dataSessions, accumulator, weightUnit])
 
   function handleClick() {
     if (selectExercise)
