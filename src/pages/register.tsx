@@ -1,11 +1,13 @@
 import { Metadata } from "next";
 import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { UserAuthForm } from "@/components/user-auth-form";
 import { MainNav } from "@/components/main-nav";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export const metadata: Metadata = {
   title: "Register",
@@ -22,6 +24,13 @@ const navItems = [
 ];
 
 export default function RegisterPage() {
+  const {data: session} = useSession()
+  const router = useRouter();
+  useEffect(() => {
+    if (session) {
+      router.push('/dashboard');
+    }
+  }, [session, router]);
   return (
     <div className="min-h-screen grid grid-rows-[min-content_1fr]">
       <header className="container z-40 bg-background">

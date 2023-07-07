@@ -2,7 +2,6 @@ import { z } from "zod";
 import { router, procedure } from "../trpc";
 import { prisma } from "../prisma";
 import bcrypt from "bcrypt"
-import { sessionSchemaT } from "@/types/schema-receiving";
 
 export const usersRouter = router({
   checkCreds: procedure
