@@ -22,19 +22,20 @@ export default function Programs() {
     }
   })
 
-
-console.log(programs)
   return (
     <Layout navItems={navItems} footerItems={footerItems}>
-        <>
-          {programs &&
-            <DataTable
-              className="mx-2"
-              columns={columns}
-              data={programs} />
-          }
+      <>
+        <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center mb-4">
+          Programs
+        </h2>
+        {programs &&
+          <DataTable
+            className="mx-2"
+            columns={columns}
+            data={programs} />
+        }
 
-        </>
+      </>
     </Layout>
   );
 }

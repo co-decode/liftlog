@@ -10,12 +10,13 @@ import { AppRouter } from "@/server/routers/_app";
 
 
 export type Programs = inferProcedureOutput<AppRouter["programs"]["findPrograms"]>
-export type Sessions = NonNullable<inferProcedureOutput<AppRouter["sessions"]["findSessions"]>>
+export type Sessions = NonNullable<inferProcedureOutput<AppRouter["layout"]["initialise"]>>["allSessions"]
 type ProgramSession = {
   programName: string,
   programSession: Programs[number]["programSessions"][number]
 }
 export type Summary = inferProcedureInput<AppRouter["sessions"]["createSession"]>["exerciseSessions"]
+type CurrentProgram = Partial<{ startDate: Date, programName: string, programId: number }>
 
 interface AuthContextValue {
   programs?: Programs
@@ -32,6 +33,9 @@ interface AuthContextValue {
 
   weightUnit: "KG" | "LB"
   setWeightUnit?: Dispatch<SetStateAction<"KG" | "LB">>
+
+  currentProgram?: CurrentProgram
+  setCurrentProgram?: Dispatch<SetStateAction<CurrentProgram | undefined>>
 }
 
 const AuthContext = createContext<AuthContextValue>({ weightUnit: "KG" });
@@ -48,6 +52,7 @@ export default function AuthProvider({
   const [selectedProgramSession, setSelectedProgramSession] = useState<ProgramSession>()
   const [workoutSummary, setWorkoutSummary] = useState<Summary>()
   const [weightUnit, setWeightUnit] = useState<"KG" | "LB">("KG")
+  const [currentProgram, setCurrentProgram] = useState<CurrentProgram>()
 
   return (
     <AuthContext.Provider value={{
@@ -61,6 +66,8 @@ export default function AuthProvider({
       setWorkoutSummary,
       weightUnit,
       setWeightUnit,
+      currentProgram,
+      setCurrentProgram,
     }}>
       {children}
     </AuthContext.Provider>

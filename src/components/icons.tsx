@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   ArrowRight,
+  ArrowUp,
   CalendarDays,
   Check,
   ChevronLeft,
@@ -28,8 +29,11 @@ import {
   Trash,
   Twitter,
   User,
+  Bell,
   X,
   type Icon as LucideIcon,
+  ArrowDown,
+  Timer,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -37,6 +41,8 @@ export type Icon = LucideIcon;
 export const Icons = {
   calendar: CalendarDays,
   close: X,
+  timer: Timer,
+  bell: Bell,
   spinner: Loader2,
   chevronLeft: ChevronLeft,
   chevronRight: ChevronRight,
@@ -54,6 +60,8 @@ export const Icons = {
   warning: AlertTriangle,
   user: User,
   arrowRight: ArrowRight,
+  arrowUp: ArrowUp,
+  arrowDown: ArrowDown,
   help: HelpCircle,
   pizza: Pizza,
   sun: SunMedium,

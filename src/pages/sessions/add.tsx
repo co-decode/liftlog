@@ -3,21 +3,21 @@ import { addConfig } from "@/config/add-config";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
   SubmitHandler,
   useForm,
 } from "react-hook-form";
-
 import { Form } from "@/components/ui/form";
 import { trpc } from "@/utils/trpc";
 import { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 import { sessionSchema } from "@/types/schema-sending";
 import { ExerciseForm, NavigationAlert, SessionForm } from "@/components/sessions/add-and-edit";
-import { Sessions, useAuth } from "@/components/auth-and-context";
+import { Programs, Sessions, useAuth } from "@/components/auth-and-context";
+
+type Program = Programs[number]
 
 const { navItems, footerItems } = addConfig
 
@@ -32,6 +32,7 @@ export default function AddPage() {
   const [page, setPage] = useState<string | undefined>();
   const [warning, setWarning] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectProgram, setSelectProgram] = useState<Program | undefined>()
 
   const router = useRouter();
 
@@ -54,9 +55,16 @@ export default function AddPage() {
     setLoading(true);
     type Input = inferProcedureInput<AppRouter["sessions"]["createSession"]>;
     if (!session || !session.user || !session.user.id) return;
+    const optionals: Partial<{programId: number, programSessionId: number}> = {}
+    if (values.programSessionId && values.programId) {
+      optionals.programId = values.programId
+      optionals.programSessionId = values.programSessionId
+    }
     const input: Input = {
       userId: session!.user.id,
-      exerciseSessions: {...values, 
+      exerciseSessions: { 
+        date: values.date,
+        ...optionals,
         exercises: values.exercises.map(ex => ({
           ...ex,
           sets: ex.sets.map(set => ({
@@ -102,6 +110,8 @@ export default function AddPage() {
                   setPage={setPage}
                   form={form}
                   loading={loading}
+                  selectProgram={selectProgram}
+                  setSelectProgram={setSelectProgram}
                 />
               ) : (
                 <ExerciseForm

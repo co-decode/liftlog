@@ -72,11 +72,11 @@ export function UserAuthForm({ register, className, ...props }: UserAuthFormProp
         <div className="grid gap-2">
           <div className="grid gap-2">
             <Label className="sr-only" htmlFor="identifier">
-              Username OR Email
+              Email
             </Label>
             <Input
               id="identifier"
-              placeholder="Username OR Email"
+              placeholder="Email"
               type="text"
               autoCapitalize="none"
               autoCorrect="off"
@@ -112,6 +112,12 @@ export function UserAuthForm({ register, className, ...props }: UserAuthFormProp
             )}
             Sign In with Credentials
           </button>
+      <button className={cn(buttonVariants({variant: "destructive"}))} disabled={isLoading}>
+        {isLoading && (
+          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+        )}
+        Sign In with a Trial Account
+      </button>
         </div>
       </form>
       <div className="relative">

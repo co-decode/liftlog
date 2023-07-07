@@ -1,7 +1,6 @@
-import { useAuth } from "@/components/auth-and-context";
+import { Programs, useAuth } from "@/components/auth-and-context";
 import Layout from "@/components/authenticated-layout";
 import { useRouter } from "next/router";
-import { sessionsConfig } from "@/config/sessions-config";
 import { useEffect, useMemo, useState } from "react";
 import {
   exerciseSchema,
@@ -21,20 +20,22 @@ import {
   NavigationAlert,
   SessionForm,
 } from "@/components/sessions/add-and-edit";
-import { sessionSchemaT } from "@/types/schema-receiving";
+import { sessionsEditConfig } from "@/config/sessions-edit-config";
 
-const { navItems, footerItems } = sessionsConfig;
+const { navItems, footerItems } = sessionsEditConfig;
 
+type Program = Programs[number]
 export type BreakdownStates = "BREAKDOWN" | "EDIT";
 
 export default function SessionBreakdown() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
-  const { exerciseSessions, setExerciseSessions, weightUnit } = useAuth();
+  const { exerciseSessions, setExerciseSessions, weightUnit, programs } = useAuth();
   const [page, setPage] = useState<string | undefined>();
   const [warning, setWarning] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [edit, setEdit] = useState<BreakdownStates>("BREAKDOWN");
+  const [selectProgram, setSelectProgram] = useState<Program | undefined>()
 
   const exSess = useMemo(() => {
     if (exerciseSessions) {
@@ -42,11 +43,24 @@ export default function SessionBreakdown() {
         (sess) => sess.date.toISOString() == router.query.session
       );
       if (!sess) return;
+      const optionals: Partial<{ programId: number, programSessionId: number }> = {}
+      if (sess.programId && sess.programSessionId) {
+        setSelectProgram(programs?.find(p => p.programId === sess.programId))
+        optionals.programId = sess.programId
+        optionals.programSessionId = sess.programSessionId
+      }
       if (weightUnit === "KG")
-        return sess;
+        return {
+          date: sess.date,
+          sid: sess.sid,
+          exercises: sess.exercises,
+          ...optionals
+        };
       else if (weightUnit === "LB")
         return {
-          ...sess,
+          date: sess.date,
+          sid: sess.sid,
+          ...optionals,
           exercises: sess.exercises.map(ex => ({
             ...ex,
             sets: ex.sets.map(set => ({
@@ -56,7 +70,8 @@ export default function SessionBreakdown() {
           }))
         }
     }
-  }, [exerciseSessions, router.query.session, weightUnit]);
+  }, [exerciseSessions, router.query.session, weightUnit, setSelectProgram, programs]);
+
 
   // This may be better left as an immediately invoked function run within useForm
   // But how do I force it to wait until exSess is found?
@@ -98,6 +113,16 @@ export default function SessionBreakdown() {
 
     const date = new Date(exSess.date) === values.date ? null : values.date;
 
+    const programId = 
+    exSess.programId === values.programId || values.programId === undefined
+      ? null 
+      : values.programId
+
+    const programSessionId = 
+    exSess.programSessionId === values.programSessionId || values.programSessionId === undefined
+      ? null 
+      : values.programSessionId
+
     // ToDelete - Assume if name remains, same id
     const editedExercises = new Set(values.exercises.map((ex) => ex.name));
     const toDelete: number[] = [];
@@ -122,7 +147,7 @@ export default function SessionBreakdown() {
           sessionId: exSess.sid,
           sets: values.exercises
             .find((ex) => ex.name === name)!
-            .sets.map((s) => ({ 
+            .sets.map((s) => ({
               ...s,
               weight: (weightUnit === "KG" ? s.weight : Number((s.weight * 0.4536).toFixed(2)))
             })),
@@ -188,6 +213,8 @@ export default function SessionBreakdown() {
     const input: Input = {
       sid: exSess.sid,
       date,
+      programId,
+      programSessionId,
       exercisesToDelete,
       exercisesToAdd,
       exercisesToUpdate
@@ -243,6 +270,8 @@ export default function SessionBreakdown() {
                 loading={loading}
                 edit={edit}
                 setEdit={setEdit}
+                selectProgram={selectProgram}
+                setSelectProgram={setSelectProgram}
               />
             ) : (
               <ExerciseForm

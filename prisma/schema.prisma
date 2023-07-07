@@ -46,6 +46,7 @@ model User {
   sessions         Session[]
   exerciseSessions ExerciseSession[]
   Program          Program[]
+  CurrentProgram   CurrentProgram[]
 }
 
 model VerificationToken {
@@ -57,11 +58,15 @@ model VerificationToken {
 }
 
 model ExerciseSession {
-  sid       Int        @id @default(autoincrement())
-  date      DateTime   @default(now()) @db.Timestamptz(6)
-  userId    Int
-  exercises Exercise[]
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sid              Int             @id @default(autoincrement())
+  date             DateTime        @default(now()) @db.Timestamptz(6)
+  exercises        Exercise[]
+  userId           Int
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programId        Int?
+  program          Program?        @relation(fields: [programId], references: [programId], onDelete: Cascade)
+  programSessionId Int?
+  programSession   ProgramSession? @relation(fields: [programSessionId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
 }
@@ -88,24 +93,27 @@ model Set {
 }
 
 model Program {
-  programId       Int              @id @default(autoincrement())
+  programId       Int               @id @default(autoincrement())
   userId          Int
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   programName     String
   splitLength     Int
   split           SplitIndex[]
   programSessions ProgramSession[]
+  CurrentProgram  CurrentProgram[]
+  ExerciseSession ExerciseSession[]
 
   @@unique([userId, programName])
 }
 
 model ProgramSession {
-  id           Int          @id @default(autoincrement())
-  programId    Int
-  program      Program      @relation(fields: [programId], references: [programId], onDelete: Cascade)
-  name         String
-  splitIndices SplitIndex[]
-  programSets  ProgramSet[]
+  id              Int               @id @default(autoincrement())
+  programId       Int
+  program         Program           @relation(fields: [programId], references: [programId], onDelete: Cascade)
+  name            String
+  splitIndices    SplitIndex[]
+  programSets     ProgramSet[]
+  ExerciseSession ExerciseSession[]
 
   @@unique([programId, name])
 }
@@ -131,4 +139,13 @@ model ProgramSet {
 
   @@unique([programSessionId, setIndex, exerciseIndex])
   @@unique([programSessionId, setIndex, exerciseName])
+}
+
+model CurrentProgram {
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  startDate DateTime @db.Timestamptz(6)
+  programId Int
+  program   Program  @relation(fields: [programId], references: [programId], onDelete: Cascade)
 }

@@ -1,9 +1,14 @@
 import {
   ColumnDef,
+  ColumnFiltersState,
+  getFilteredRowModel,
   Row,
   flexRender,
   getCoreRowModel,
   useReactTable,
+  FilterFn,
+  SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table"
 
 import {
@@ -23,6 +28,11 @@ import {
 import { z } from "zod";
 import { useRouter } from "next/router";
 import { useAuth } from "./auth-and-context";
+import { useEffect, useState } from "react";
+import DateRangePicker from "./date-range-picker";
+import { Icons } from "./icons";
+import { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 
 const SetSchema = z.object({
   reps: z.number(),
@@ -48,6 +58,28 @@ interface DataTableProps {
   className: string
 }
 
+const dateRange: FilterFn<any> = (
+  row,
+  columnId: string,
+  filterValue: [number, number]
+) => {
+  let [min, max] = filterValue
+  if (!max || !min) return true
+
+  const rowValue = row.getValue<Date>(columnId).getTime()
+  return rowValue >= min && rowValue <= max
+}
+
+const includesExercise: FilterFn<any> = (
+  row,
+  columnId: string,
+  filterValue: string
+) => {
+  const rowValue = row.getValue<Schema["exercises"]>(columnId)
+
+  return rowValue.some(ex => ex.name === filterValue)
+}
+
 export function DataTable({
   columns,
   data,
@@ -55,31 +87,68 @@ export function DataTable({
 }: DataTableProps) {
   const router = useRouter()
   const { weightUnit } = useAuth()
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    []
+  )
+  const [sorting, setSorting] = useState<SortingState>([{
+    id: "date",
+    desc: true,
+  }])
   const table = useReactTable({
     data,
     columns,
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      columnFilters,
+      sorting
+    },
+    filterFns: {
+      dateRange,
+      includesExercise
+    }
   })
-
   function handleClick(row: Row<Schema>) {
     console.log(row.original)
   }
 
   return (
-    <div className={"rounded-md border " + className}>
-      <Table>
+    <div className={"grid justify-center gap-3 " + className}>
+      <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center">
+        Sessions
+      </h2>
+      <div className="text-lg font-semibold flex items-center gap-3">
+        <DateRangePicker columnFilters={columnFilters} setColumnFilters={setColumnFilters}/>
+      </div>
+      <Table className="max-w-lg w-[min(32rem,95vw)] min-w-[300px] border rounded-m">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id} className="text-center">
+                  <TableHead
+                    key={header.id}
+                    className={cn("text-center select-none", header.id === "date" ? "cursor-pointer" : "pointer-events-none")}
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
+                    {header.id === "date"
+                      ? header.column.getIsSorted() as string === "desc"
+                        ? <Icons.arrowDown className="h-4 w-4 inline absolute mt-0.5 ml-3" />
+                        : header.column.getIsSorted() as string === "asc"
+                          ? <Icons.arrowUp className="h-4 w-4 inline absolute mt-0.5 ml-3" />
+                          : null
+                      : null
+                    }
+
                   </TableHead>
                 )
               })}
@@ -101,17 +170,18 @@ export function DataTable({
                       <PopoverTrigger className="absolute h-full w-full top-0 left-0">
                         <span className="absolute left-0 invisible">Open</span>
                       </PopoverTrigger>
-                      <PopoverContent 
+                      <PopoverContent
                         className="cursor-pointer hover:bg-muted"
                         role="button"
                         onClick={() => router.push(`/sessions/${row.original.date.toISOString()}`)}
                       >
-                        {row.original.exercises.map((ex: z.infer<typeof ExerciseSchema>)  =>
+                        {row.original.exercises.map((ex: z.infer<typeof ExerciseSchema>) =>
                           <div key={ex.name} className="capitalize">
-                            {ex.name}:&nbsp;{String(Math.floor(ex.sets.reduce((a,v) => {
+                            {ex.name}:&nbsp;{String(Math.floor(ex.sets.reduce((a, v) => {
                               const setTonnage = v.reps * Number(v.weight)
                               return a + setTonnage
-                              }, 0) * (weightUnit === "KG" ? 1 : 2.205)))}{` ${weightUnit}`}
+                            }, 0) * (weightUnit === "KG" ? 1 : 2.205)))}{` ${weightUnit}`}
+
                           </div>
                         )}
                       </PopoverContent>
@@ -133,4 +203,18 @@ export function DataTable({
     </div>
   )
 }
-
+function ExerciseFilter() {
+  return (
+    <Popover>
+      <PopoverTrigger className="absolute top-0 left-0">
+        <span className="absolute left-0 invisible">Open</span>
+      </PopoverTrigger>
+      <PopoverContent
+        className="cursor-pointer hover:bg-muted"
+        role="button"
+        onClick={() => console.log('blah')}
+      >
+      </PopoverContent>
+    </Popover>
+  )
+}

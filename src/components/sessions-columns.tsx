@@ -1,7 +1,13 @@
 "use client";
 
-import { CellContext, ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef, FilterFn } from "@tanstack/react-table";
 import { z } from "zod";
+declare module '@tanstack/table-core' {
+  interface FilterFns {
+    dateRange: FilterFn<unknown>
+    includesExercise: FilterFn<unknown>
+  }
+}
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -25,10 +31,6 @@ export type Schema = z.infer<typeof ExerciseSessionSchema>;
 
 export const columns: ColumnDef<Schema>[] = [
   {
-    accessorKey: "alias",
-    header: "Alias",
-  },
-  {
     accessorKey: "date",
     header: "Date",
     cell: (props: CellContext<Schema, any>) => {
@@ -36,18 +38,32 @@ export const columns: ColumnDef<Schema>[] = [
 
       return (
         <span>
-          {/*new Intl.DateTimeFormat([], {
+          {new Intl.DateTimeFormat([], {
             weekday: "short",
             day: "numeric",
             month: "numeric",
             year: "2-digit",
-            hour12: false,
+            hour12: true,
             hour: "numeric",
             minute: "2-digit",
-          }).format(formatDate)*/}
-          {props.getValue().toLocaleString()}
+          }).format(props.getValue())}
+          {/*props.getValue().toLocaleString()*/}
         </span>
       );
     },
+    filterFn: "dateRange",
+    sortingFn: "datetime",
+  },
+  {
+    accessorKey: "exercises",
+    header: "Exercises",
+    cell: (props: CellContext<Schema, any>) => {
+      return (
+        <span>
+          {props.getValue().length}
+        </span>
+      )
+    },
+    filterFn: "includesExercise"
   },
 ];

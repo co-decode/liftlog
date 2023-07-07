@@ -25,7 +25,7 @@ export default function AuthenticatedLayout({
   className = "",
 }: AuthenticatedLayoutProps) {
   const router = useRouter();
-  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit } = useAuth();
+  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit, currentProgram, setCurrentProgram } = useAuth();
   const { status, data: session } = useSession();
 
   useEffect(() => {
@@ -34,6 +34,49 @@ export default function AuthenticatedLayout({
     }
   }, [session, status, router]);
 
+  const initialiseContext = trpc.layout.initialise.useQuery(
+    session?.user?.id,
+    { enabled: false }
+  )
+
+  useEffect(() => {
+    const unitPreference = localStorage.getItem("weightUnit") as "KG" | "LB"
+    if (unitPreference && unitPreference !== weightUnit && setWeightUnit)
+      setWeightUnit(unitPreference)
+  }, [weightUnit, setWeightUnit])
+
+  useEffect(() => {
+    if (exerciseSessions || programs || currentProgram) return
+    if (session && !initialiseContext.data)
+      initialiseContext.refetch()
+    else if (initialiseContext.data && setExerciseSessions && setPrograms && setCurrentProgram) {
+      const { allSessions, allPrograms, currentProgram: selectedProgram }
+        = initialiseContext.data
+
+      if (allSessions)
+        setExerciseSessions(
+          allSessions.map(sess => ({
+            ...sess,
+            date: new Date(sess.date),
+          }))
+        )
+
+      if (allPrograms)
+        setPrograms(allPrograms)
+
+      if (
+        selectedProgram.programId && 
+        selectedProgram.programName && 
+        selectedProgram.startDate
+      )
+        setCurrentProgram({
+          ...selectedProgram,
+          startDate: new Date(selectedProgram.startDate)
+        })
+
+    }
+  }, [exerciseSessions, programs, currentProgram, session, initialiseContext, setExerciseSessions, setPrograms, setCurrentProgram])
+/*
   const getSessions = trpc.sessions.findSessions
     .useQuery(session?.user?.id, {
       enabled: false
@@ -44,6 +87,10 @@ export default function AuthenticatedLayout({
     { enabled: false }
   )
 
+  const getCurrentProgram = trpc.programs.findCurrentProgram.useQuery(
+    session?.user?.id,
+    { enabled: false }
+  )
 
   // Ideally would want to combine call for exercises and programs into a transaction
   useEffect(() => {
@@ -61,12 +108,6 @@ export default function AuthenticatedLayout({
   }, [exerciseSessions, setExerciseSessions, getSessions.data, getSessions, session]);
 
   useEffect(() => {
-    const unitPreference = localStorage.getItem("weightUnit") as "KG" | "LB"
-    if (unitPreference && unitPreference !== weightUnit && setWeightUnit)
-      setWeightUnit(unitPreference)
-  }, [weightUnit, setWeightUnit])
-
-  useEffect(() => {
     if (programs) return
     if (session && !getPrograms.data)
       getPrograms.refetch()
@@ -74,6 +115,17 @@ export default function AuthenticatedLayout({
       setPrograms(getPrograms.data)
   }, [programs, setPrograms, getPrograms.data, getPrograms, session])
 
+  useEffect(() => {
+    if (currentProgram) return
+    if (session && !getCurrentProgram.data && programs)
+      getCurrentProgram.refetch()
+    if (getCurrentProgram.data && setCurrentProgram && programs) {
+      const { programName, programId, startDate } = getCurrentProgram.data
+      setCurrentProgram({ programName, programId, startDate: new Date(startDate) })
+    } else if (setCurrentProgram && getCurrentProgram.data === null)
+      setCurrentProgram({})
+  }, [currentProgram, setCurrentProgram, getCurrentProgram.data, getCurrentProgram, session, programs])
+*/
   return (
     <div className="flex min-h-screen flex-col space-y-6">
       <header className="sticky top-0 z-40 border-b bg-background">
@@ -100,7 +152,7 @@ export default function AuthenticatedLayout({
             {children}
           </main>
           <SiteFooter
-            className="border-t"
+            className="border-t sticky bottom-0 bg-background"
             footerItems={footerItems}
             setWarning={setWarning}
           />

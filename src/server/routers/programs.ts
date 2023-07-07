@@ -202,7 +202,7 @@ export const programsRouter = router({
             }))
           })
         // Update existing and changed indices
-          // Unnecessary?
+        // Unnecessary?
         if (indicesToUpdate)
           for (const index of indicesToUpdate) {
             await prisma.splitIndex.update({
@@ -267,9 +267,76 @@ export const programsRouter = router({
         })
       })
     }),
-  // deleteAll: procedure
-  //   .input(
-  //   )
-  //   .mutation(async ({ input }) => {
-  //   }),
+  deleteProgram: procedure
+    .input(
+      z.number().int()
+    )
+    .mutation(async ({ input: programId }) => {
+      return await prisma.program.delete({
+        where: { programId }
+      })
+    }),
+  findCurrentProgram: procedure
+    .input(
+      z.number().int()
+    )
+    .query(async ({ input: userId }) => {
+      return await prisma.$transaction(async (prisma) => {
+        const currentProgram = await prisma.currentProgram.findUnique({
+          where: { userId },
+          select: {
+            programId: true,
+            startDate: true,
+          }
+        })
+
+        const program = await prisma.program.findUnique({
+          where: { programId: currentProgram?.programId },
+          select: { programName: true }
+        })
+
+        if (currentProgram && program)
+          return { ...currentProgram, ...program }
+        else return null
+      })
+    }),
+  setCurrentProgram: procedure
+    .input(z.object({
+      userId: z.number().int(),
+      programId: z.number().int(),
+      startDate: z.coerce.date(),
+    }))
+    .mutation(async ({ input }) => {
+      const { userId, programId, startDate } = input
+      return await prisma.$transaction(async (prisma) => {
+        const existing = await prisma.currentProgram.findUnique({
+          where: { userId },
+          select: { id: true }
+        })
+
+        if (existing)
+          return await prisma.currentProgram.update({
+            where: { id: existing.id },
+            data: {
+              programId,
+              startDate,
+            }
+          })
+        else
+          return await prisma.currentProgram.create({
+            data: {
+              userId,
+              programId,
+              startDate
+            }
+          })
+      })
+    }),
+  deleteCurrentProgram: procedure
+    .input(z.number().int())
+    .mutation(async ({ input: userId }) => {
+      return await prisma.currentProgram.delete({
+        where: { userId },
+      })
+    })
 });

@@ -39,16 +39,16 @@ export const sessionsRouter = router({
         },
       });
       return allSessions?.exerciseSessions.map(sess => ({
-          ...sess,
-          date: sess.date,
-          exercises: sess.exercises.map(ex => ({
-            ...ex,
-            sets: ex.sets.map(set => ({
-              ...set,
-              weight: Number(set.weight)
-            }))
+        ...sess,
+        date: sess.date,
+        exercises: sess.exercises.map(ex => ({
+          ...ex,
+          sets: ex.sets.map(set => ({
+            ...set,
+            weight: Number(set.weight)
           }))
         }))
+      }))
     }),
   createSession: procedure // Creates a Session for user
     .input(userSchema)
@@ -59,7 +59,8 @@ export const sessionsRouter = router({
           data: {
             userId,
             date: new Date(eSess.date),
-
+            programId: eSess.programId,
+            programSessionId: eSess.programSessionId,
             exercises: {
               create: eSess.exercises.map((ex) => {
                 return {
@@ -77,6 +78,8 @@ export const sessionsRouter = router({
           select: {
             date: true,
             sid: true,
+            programId: true,
+            programSessionId: true,
             exercises: {
               select: {
                 id: true,
@@ -97,16 +100,16 @@ export const sessionsRouter = router({
         })
       })
       return session ? {
-          ...session,
-          exercises: session?.exercises.map(ex => ({
-            ...ex,
-            sets: ex.sets.map(set => ({
-              ...set,
-              weight: Number(set.weight)
-            }))
+        ...session,
+        exercises: session?.exercises.map(ex => ({
+          ...ex,
+          sets: ex.sets.map(set => ({
+            ...set,
+            weight: Number(set.weight)
           }))
+        }))
       }
-      : null
+        : null
     }),
   updateOne: procedure // Creates a Session for user
     .input(userSchema)
@@ -169,6 +172,8 @@ export const sessionsRouter = router({
       z.object({
         sid: z.number(),
         date: z.coerce.date().nullable(),
+        programId: z.number().int().nullable(),
+        programSessionId: z.number().int().nullable(),
         exercisesToDelete: z.array(z.number()).nullable(), // Exercise IDs
         exercisesToAdd: z
           .array(
@@ -219,6 +224,8 @@ export const sessionsRouter = router({
       const {
         date,
         sid,
+        programId,
+        programSessionId,
         exercisesToAdd,
         exercisesToDelete,
         exercisesToUpdate,
@@ -231,6 +238,14 @@ export const sessionsRouter = router({
             data: { date },
           });
         }
+        if (programId && programSessionId)
+          await prisma.exerciseSession.update({
+            where: { sid },
+            data: {
+              programId,
+              programSessionId,
+            }
+          })
         // Delete removed exercises
         if (exercisesToDelete)
           await prisma.exercise.deleteMany({
@@ -284,6 +299,8 @@ export const sessionsRouter = router({
           select: {
             sid: true,
             date: true,
+            programId: true,
+            programSessionId: true,
             exercises: {
               select: {
                 id: true,

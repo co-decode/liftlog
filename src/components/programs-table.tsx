@@ -59,6 +59,10 @@ export function DataTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    filterFns: { // filterFns currently unused for this component
+      dateRange: () => true,
+      includesExercise: () => true,
+    },
   })
 
   function handleClick(row: Row<Schema>) {

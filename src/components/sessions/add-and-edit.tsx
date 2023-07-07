@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { DatePicker } from "@/components/date-picker";
 import { Icons } from "@/components/icons";
 import * as z from "zod";
@@ -35,7 +35,10 @@ import { cn } from "@/lib/utils";
 import { useLockBody } from "@/hooks/use-lock-body";
 import { sessionSchema } from "@/types/schema-sending";
 import Link from "next/link";
-import { useAuth } from "../auth-and-context";
+import { Programs, useAuth } from "../auth-and-context";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+
+type Program = Programs[number]
 
 interface SessionFormProps {
   page: string | undefined;
@@ -44,6 +47,8 @@ interface SessionFormProps {
   loading: boolean;
   edit?: "BREAKDOWN" | "EDIT";
   setEdit?: Dispatch<SetStateAction<"BREAKDOWN" | "EDIT">>;
+  selectProgram?: Program
+  setSelectProgram: Dispatch<SetStateAction<Program | undefined>>
 }
 
 export function SessionForm({
@@ -53,12 +58,17 @@ export function SessionForm({
   loading,
   edit,
   setEdit,
+  selectProgram,
+  setSelectProgram,
 }: SessionFormProps) {
+  const { programs } = useAuth()
   const [removeMode, setRemoveMode] = useState<boolean>(false);
   const [selectExercise, setSelectExercise] = useState<string | undefined>();
   const {
     control,
     formState: { errors },
+    resetField,
+    getValues,
   } = form;
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
@@ -105,6 +115,79 @@ export function SessionForm({
           </FormItem>
         )}
       />
+      {programs ?
+        <div className="flex max-w-[300px] justify-between">
+          <FormField
+            control={form.control}
+            name="programId"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Program</FormLabel>
+                <Select
+                  onValueChange={(e) => {
+                    if (Number(e) > 0)
+                      field.onChange(Number(e));
+                    const program = programs?.find(p => p.programId === Number(e))
+                    setSelectProgram!(program)
+                    resetField("programSessionId")
+                  }}
+                  defaultValue={String(getValues("programId")) || ""}
+                  disabled={edit === "BREAKDOWN"}
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">
+                      None
+                    </SelectItem>
+                    {programs?.map((p) => (
+                      <SelectItem key={p.programId} value={String(p.programId)}>
+                        {p.programName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="programSessionId"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Program Session</FormLabel>
+                <Select
+                  onValueChange={(e) => {
+                    if (Number(e) > 0)
+                      field.onChange(Number(e))
+                  }}
+                  disabled={!selectProgram || edit === "BREAKDOWN"}
+                  defaultValue={String(getValues("programSessionId")) || ""} 
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">
+                      None
+                    </SelectItem>
+                    {selectProgram?.programSessions.map((p) => (
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        : null}
       <Table className="w-[300px] mx-1">
         <TableCaption
           className={cn("relative mb-3", edit === "BREAKDOWN" ? "text-center" : "text-left")}
@@ -112,8 +195,8 @@ export function SessionForm({
           {removeMode
             ? "Delete Exercises"
             : fields.length
-            ? "Current Exercises in the Session"
-            : "Add Exercises to the Session"}
+              ? "Current Exercises in the Session"
+              : "Add Exercises to the Session"}
           {edit === "BREAKDOWN" ? null : (
             <Button
               variant="ghost"
@@ -143,7 +226,7 @@ export function SessionForm({
             <TableRow
               key={ex.name}
               onClick={() => handleExerciseClick(ex.name, ind)}
-              className={cn(removeMode && "hover:bg-destructive/5","group parent hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background")}
+              className={cn(removeMode && "hover:bg-destructive/5", "group parent hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background")}
               role="link"
               tabIndex={0}
             >
@@ -286,7 +369,7 @@ export function ExerciseForm({ form, page, setPage, edit }: ExerciseFormProps) {
                     min="1"
                     className={cn(
                       errors?.exercises?.[nestIndex]?.sets?.[ind]?.reps &&
-                        "text-red-600 border-red-600/50",
+                      "text-red-600 border-red-600/50",
                       edit && "text-center"
                     )}
                     onFocus={(e) => e.target.select()}
@@ -303,7 +386,7 @@ export function ExerciseForm({ form, page, setPage, edit }: ExerciseFormProps) {
                     min="0"
                     className={cn(
                       errors?.exercises?.[nestIndex]?.sets?.[ind]?.weight &&
-                        "text-red-600 border-red-600/50",
+                      "text-red-600 border-red-600/50",
                       edit && "text-center"
                     )}
                     onFocus={(e) => e.target.select()}

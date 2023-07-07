@@ -15,6 +15,6 @@ export const addConfig: AuthenticatedConfig = {
   footerItems: [
     { icon: Icons.logout, href: "/sessions" },
     { icon: Icons.home, href: "/dashboard" },
-    { icon: Icons.calendar, href: "/schedule" },
+    { icon: Icons.dumbbell, href: "/programs" },
   ]
 }

@@ -20,6 +20,8 @@ export type exerciseSchemaT = z.infer<typeof exerciseSchema>
 
 export const sessionSchema = z.object({
   date: z.coerce.date(),
+  programId: z.number().int().optional(),
+  programSessionId: z.number().int().optional(),
   exercises: z.array(exerciseSchema),
 });
 export type sessionSchemaT = z.infer<typeof sessionSchema>
