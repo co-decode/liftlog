@@ -9,6 +9,7 @@ import { MainNav } from "@/components/main-nav";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -73,6 +74,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

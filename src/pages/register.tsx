@@ -61,6 +61,7 @@ export default function RegisterPage() {
             </p>
           </div>
           <UserAuthForm register />
+          {/*
         <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <Link
@@ -78,6 +79,7 @@ export default function RegisterPage() {
             </Link>
             .
           </p>
+          */}
         </div>
       </div>
     </div>

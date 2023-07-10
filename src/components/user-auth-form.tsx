@@ -62,8 +62,30 @@ export function UserAuthForm({ register, className, ...props }: UserAuthFormProp
         variant: "destructive",
       });
     }
+    router.push("/dashboard")
+  }
+  async function onSubmitTrialCreds(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.preventDefault()
+    setIsLoading(true);
 
-    return router.push("/dashboard")
+    const signInResult = await signIn("credentials", {
+      identifier: "trial@liftlog.com",
+      password: "secretPassword",
+      redirect: false,
+      callbackUrl: "/dashboard",
+    });
+
+    console.log(signInResult)
+
+    if (!signInResult?.ok) {
+      setIsLoading(false);
+      return toast({
+        title: "Something went wrong.",
+        description: "Your sign in request failed. Please try again.",
+        variant: "destructive",
+      });
+    }
+    router.push("/dashboard")
   }
 
   return (
@@ -112,12 +134,12 @@ export function UserAuthForm({ register, className, ...props }: UserAuthFormProp
             )}
             Sign In with Credentials
           </button>
-      <button className={cn(buttonVariants({variant: "destructive"}))} disabled={isLoading}>
-        {isLoading && (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        )}
-        Sign In with a Trial Account
-      </button>
+          <button role="button" onClick={e => onSubmitTrialCreds(e)} className={cn(buttonVariants({ variant: "destructive" }))} disabled={isLoading}>
+            {isLoading && (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Sign In with a Trial Account
+          </button>
         </div>
       </form>
       <div className="relative">

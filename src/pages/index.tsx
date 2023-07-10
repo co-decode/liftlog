@@ -43,11 +43,11 @@ export default function IndexPage() {
           </nav>
         </div>
       </header>
-      <section className="grid justify-items-center gap-2 sm:gap-3 lg:gap-4">
-        <h1 className={cn("scroll-m-20 text-3xl font-heading sm:text-5xl md:text-6xl lg:text-7xl", fontHeading.className)}>
+      <section className="grid justify-items-center gap-2 sm:gap-3 lg:gap-4 py-5">
+        <h1 className={cn("scroll-m-20 text-5xl font-heading md:text-6xl lg:text-7xl", fontHeading.className)}>
           LiftLog
         </h1>
-        <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+        <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8 pb-3">
           Log your Lifts with LiftLog.
         </p>
         <div className="space-x-4">
@@ -92,7 +92,7 @@ export default function IndexPage() {
       </section>
       <section
         id="features"
-        className="container space-y-6 bg-slate-50 pb-6 dark:bg-transparent md:pb-12 lg:pb-24"
+        className="container space-y-6 bg-slate-50 py-6 dark:bg-transparent md:py-12 lg:py-24"
       >
         <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
           <h2 className={cn("font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl", fontHeading.className)}>

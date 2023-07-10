@@ -48,7 +48,7 @@ export function UserRegForm({
 
     const signInResult = await signIn("email", {
       email: data.email.toLowerCase(),
-      //redirect: false,
+      redirect: false,
       callbackUrl: "/dashboard",
     })
 

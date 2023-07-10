@@ -36,12 +36,11 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
           <div className="flex flex-col space-y-1 leading-none w-32">
             {user.name && <p className="font-medium">{user.name}</p>}
             {user.email && (
-              <p className="w-[200px] truncate text-sm text-muted-foreground">
+              <p className="w-full truncate text-sm text-muted-foreground overflow-ellipsis">
                 {user.email}
               </p>
             )}
           </div>
-          <ModeToggle />
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -53,6 +52,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
             Settings
           </Link>
         </DropdownMenuItem>
+          <ModeToggle />
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
