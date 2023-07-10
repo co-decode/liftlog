@@ -32,7 +32,7 @@ export default function Dashboard() {
     const program = programs.find(p => p.programId === currentProgram.programId)
     if (!program)
       throw new Error("getDefaultProgramSession: Dashboard program search failed: currentProgram does not exist in Programs")
-    const today = new Date(Date.now() - 2 * (1000 * 3600 * 24)).setHours(0, 0, 0, 0)
+    const today = new Date(Date.now() - 2 * (1000 * 3600 * 24)).setHours(0, 0, 0, 0) // ! Remove offset, it was used for testing
     const daysSinceStart =
       (today - currentProgram.startDate.getTime()) / (1000 * 60 * 60 * 24)
     const splitIndex = daysSinceStart % program.splitLength

@@ -2,7 +2,7 @@ import Layout from "@/components/authenticated-layout"
 import { addConfig } from "@/config/add-config";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -28,6 +28,7 @@ export default function AddPage() {
     setExerciseSessions,
     workoutSummary,
     weightUnit,
+    programs
   } = useAuth()
   const [page, setPage] = useState<string | undefined>();
   const [warning, setWarning] = useState<string>("");
@@ -41,6 +42,13 @@ export default function AddPage() {
     values: workoutSummary || undefined
     //shouldUnregister: true,
   });
+
+  useEffect(() => {
+    if (workoutSummary && programs) 
+      setSelectProgram(
+        programs?.find(p => p.programId === workoutSummary.programId)
+      )
+  }, [workoutSummary, programs])
 
   const createSession = trpc.sessions.createSession.useMutation({
     onSuccess() {

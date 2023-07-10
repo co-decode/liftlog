@@ -66,7 +66,7 @@ export default function Workout({ }: WorkoutProps) {
         {started ? (
           <WorkoutExercise
             programName={programName}
-            sessionName={programSession.name}
+            programSession={programSession}
             sequence={sequence}
             started={started}
             setStarted={setStarted}
@@ -107,7 +107,7 @@ export default function Workout({ }: WorkoutProps) {
 
 interface WorkoutExerciseProps {
   programName: string
-  sessionName: string;
+  programSession: ProgramSession;
   sequence: string[][];
   started: boolean;
   setStarted: Dispatch<SetStateAction<boolean>>;
@@ -115,10 +115,10 @@ interface WorkoutExerciseProps {
 
 function WorkoutExercise({
   programName,
-  sessionName,
+  programSession,
   sequence,
 }: WorkoutExerciseProps) {
-  const { setWorkoutSummary } = useAuth();
+  const { setWorkoutSummary, programs } = useAuth();
   const router = useRouter();
   const [setNumber, setSetNumber] = useState<number>(1);
   const [setIndex, setSetIndex] = useState<number>(0);
@@ -129,9 +129,13 @@ function WorkoutExercise({
   const [rest, setRest] = useState<boolean>(false);
   const [restTime, setRestTime] = useState(0);
 
+  const sessionName = programSession.name
+
   const workoutData = useRef<Summary>({
     date: new Date(Date.now()),
     exercises: [],
+    programId: programs?.find(p => p.programName === programName)?.programId,
+    programSessionId: programSession.id,
   });
 
   function nextInSet() {
