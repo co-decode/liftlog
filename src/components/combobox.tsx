@@ -64,6 +64,26 @@ const frameworks = [
     value: "incline dumbbell press",
     label: "incline dumbbell press",
   },
+  {
+    value: "bulgarian split squat",
+    label: "bulgarian split squat",
+  },
+  {
+    value: "bicep curl",
+    label: "bicep curl",
+  },
+  {
+    value: "skull crusher",
+    label: "skull crusher",
+  },
+  {
+    value: "dip",
+    label: "dip",
+  },
+  {
+    value: "push up",
+    label: "push up",
+  },
 ];
 
 interface ComboboxProps {
