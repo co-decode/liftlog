@@ -71,8 +71,8 @@ export function DataTable({
   }
 
   return (
-    <div className={"rounded-md border " + className}>
-      <Table>
+    <div className={"grid justify-center " + className}>
+      <Table className="max-w-lg w-[min(32rem,95vw)] min-w-[300px] border rounded-m">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

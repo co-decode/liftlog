@@ -13,16 +13,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icons } from "@/components/icons";
 import { UserAvatar } from "@/components/user-avatar";
-import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
-import { useRouter } from "next/router";
+//import { useRouter } from "next/router";
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Pick<User, "name" | "image" | "email">;
 }
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
-  const router = useRouter()
+  //const router = useRouter()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -44,7 +43,34 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/dashboard">
+          <Icons.home className="w-4 h-4 mr-2"/>
+          Dashboard
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/programs">
+          <Icons.dumbbell className="w-4 h-4 mr-2"/>
+          Programs
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/sessions">
+          <Icons.list className="w-4 h-4 mr-2"/>
+          Sessions
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/analysis">
+          <Icons.graph className="w-4 h-4 mr-2"/>
+          Analysis
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/schedule">
+          <Icons.calendar className="w-4 h-4 mr-2"/>
+          Schedule
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/settings">

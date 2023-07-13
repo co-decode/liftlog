@@ -104,7 +104,7 @@ export default function AddPage() {
   };
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems} setWarning={setWarning}>
+    <Layout footerItems={footerItems} setWarning={setWarning}>
       {status !== "authenticated" ? null : (
         <div className="flex w-full flex-1 flex-col items-center overflow-hidden">
           <Form {...form}>

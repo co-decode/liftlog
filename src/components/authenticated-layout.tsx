@@ -11,7 +11,7 @@ import { trpc } from "@/utils/trpc";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
-  navItems: NavConfig;
+  //navItems: NavConfig;
   footerItems: FooterConfig;
   setWarning?: React.Dispatch<React.SetStateAction<string>>;
   className?: string;
@@ -19,7 +19,7 @@ interface AuthenticatedLayoutProps {
 
 export default function AuthenticatedLayout({
   children,
-  navItems,
+  //navItems,
   footerItems,
   setWarning,
   className = "",
@@ -130,7 +130,7 @@ export default function AuthenticatedLayout({
     <div className="flex min-h-screen flex-col space-y-6">
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
-          <MainNav items={navItems} />
+          <MainNav/>
           {status !== "authenticated" ? null : (
             <UserAccountNav
               user={{

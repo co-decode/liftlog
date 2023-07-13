@@ -28,7 +28,7 @@ export default function IndexPage() {
     <>
       <header className="container z-40 bg-background">
         <div className="flex h-20 items-center justify-between py-6">
-          <MainNav items={landingConfig} />
+          <MainNav/>
           <nav>
             <Link
               href="/login"

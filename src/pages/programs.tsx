@@ -11,7 +11,7 @@ export default function Programs() {
   const { programs } = useAuth()
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems}>
+    <Layout footerItems={footerItems}>
       <>
         <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center mb-4">
           Programs

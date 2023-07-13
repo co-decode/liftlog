@@ -61,7 +61,7 @@ export default function Workout({ }: WorkoutProps) {
   }
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems}>
+    <Layout footerItems={footerItems}>
       <div className="flex flex-1 justify-center h-full">
         {started ? (
           <WorkoutExercise

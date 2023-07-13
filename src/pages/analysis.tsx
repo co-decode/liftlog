@@ -117,7 +117,7 @@ export default function Analysis() {
   }
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems}>
+    <Layout footerItems={footerItems}>
       <div className="grid justify-items-center">
         <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-5 text-center">
           Analysis

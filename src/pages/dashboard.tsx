@@ -61,7 +61,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems}>
+    <Layout footerItems={footerItems}>
       <div className="grid justify-items-center gap-5">
         <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center">
           Dashboard

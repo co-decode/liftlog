@@ -116,7 +116,7 @@ export default function Programs() {
   };
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems} setWarning={setWarning}>
+    <Layout footerItems={footerItems} setWarning={setWarning}>
       <div className="w-full grid justify-items-center">
         <form
           onSubmit={form.handleSubmit(onSubmit)}

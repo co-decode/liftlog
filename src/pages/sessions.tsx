@@ -13,7 +13,7 @@ export default function Sessions() {
   //  const getSessions = trpc.users.findAll.useQuery("cody@cody.com");
 
   return (
-    <Layout navItems={navItems} footerItems={footerItems}>
+    <Layout footerItems={footerItems}>
         <>
           {exerciseSessions &&
             <DataTable
