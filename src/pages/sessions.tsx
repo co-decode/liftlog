@@ -5,7 +5,7 @@ import Layout from "@/components/authenticated-layout";
 import { sessionsConfig } from "@/config/sessions-config";
 import { useAuth } from "@/components/auth-and-context";
 
-const { navItems, footerItems } = sessionsConfig
+const { footerItems } = sessionsConfig
 
 export default function Sessions() {
   const { exerciseSessions } = useAuth()

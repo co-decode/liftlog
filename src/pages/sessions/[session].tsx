@@ -3,9 +3,7 @@ import Layout from "@/components/authenticated-layout";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  exerciseSchema,
   sessionSchema,
-  setSchema,
 } from "@/types/schema-sending";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,13 +14,14 @@ import { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 import { Form } from "@/components/ui/form";
 import {
+    DeletionAlert,
   ExerciseForm,
   NavigationAlert,
   SessionForm,
 } from "@/components/sessions/add-and-edit";
 import { sessionsEditConfig } from "@/config/sessions-edit-config";
 
-const { navItems, footerItems } = sessionsEditConfig;
+const { footerItems } = sessionsEditConfig;
 
 type Program = Programs[number]
 export type BreakdownStates = "BREAKDOWN" | "EDIT";
@@ -72,27 +71,6 @@ export default function SessionBreakdown() {
     }
   }, [exerciseSessions, router.query.session, weightUnit, setSelectProgram, programs]);
 
-
-  // This may be better left as an immediately invoked function run within useForm
-  // But how do I force it to wait until exSess is found?
-  /*
-  const changeSess = useMemo(() => {
-    if (!exSess) return;
-    const changeSess: z.infer<typeof sessionSchema> = {
-      date: new Date(exSess.date),
-      exercises: exSess.exercises.map((ex) => {
-        return {
-          name: ex.name,
-          sets: ex.sets.map((set) => {
-            return { ...set, weight: Number(set.weight) };
-          }),
-        };
-      }),
-    };
-    return changeSess;
-  }, [exSess]);
-  */
-
   const form = useForm<z.infer<typeof sessionSchema>>({
     resolver: zodResolver(sessionSchema),
     values: exSess,
@@ -104,6 +82,27 @@ export default function SessionBreakdown() {
     },
     //onError()
   });
+
+  const deleteSession = trpc.sessions.deleteSession.useMutation({
+    onSuccess() {
+      console.log("Successfully deleted!");
+    }
+  })
+
+  const onDelete = async() => {
+    if (!exSess?.sid || !exerciseSessions || !setExerciseSessions) return;
+    setLoading(true)
+    try {
+      await deleteSession.mutateAsync(exSess.sid)
+      setExerciseSessions(exerciseSessions.filter(s => s.sid !== exSess.sid))
+      router.push("/sessions")
+      setLoading(false)
+    } catch (error) {
+      console.error(error, "deleteSession call failed")
+      setLoading(false)
+    }
+  }
+
   const onSubmit: SubmitHandler<z.infer<typeof sessionSchema>> = async (
     values
   ) => {
@@ -252,7 +251,6 @@ export default function SessionBreakdown() {
 
   return (
     <Layout
-      navItems={navItems}
       footerItems={footerItems}
       setWarning={edit === "EDIT" ? setWarning : undefined}
     >
@@ -272,6 +270,7 @@ export default function SessionBreakdown() {
                 setEdit={setEdit}
                 selectProgram={selectProgram}
                 setSelectProgram={setSelectProgram}
+                setWarning={() => setWarning("DELETION")}
               />
             ) : (
               <ExerciseForm
@@ -284,7 +283,10 @@ export default function SessionBreakdown() {
           </form>
         </Form>
       </div>
-      {warning ? (
+      {warning === "DELETION" ? (
+        <DeletionAlert setWarning={setWarning} onDelete={onDelete} />
+      )
+      : warning ? (
         <NavigationAlert warning={warning} setWarning={setWarning} />
       ) : null}
     </Layout>

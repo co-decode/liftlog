@@ -5,7 +5,7 @@ import { programsConfig } from "@/config/programs-config";
 import { DataTable } from "@/components/programs-table";
 import { columns } from "@/components/programs-columns";
 
-const { navItems, footerItems } = programsConfig
+const { footerItems } = programsConfig
 
 export default function Programs() {
   const { programs } = useAuth()

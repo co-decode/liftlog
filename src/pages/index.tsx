@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { landingConfig } from "@/config/landing-config";
 import { Icons } from "@/components/icons";
 
 const fontHeading = localFont({

@@ -17,7 +17,7 @@ import { useEffect } from "react";
 import { NavigationAlert } from "@/components/sessions/add-and-edit";
 import { Program, ProgramForm, SessionForm, programSchema } from "@/components/programs/add-and-edit";
 
-const { navItems, footerItems } = programsAddConfig;
+const { footerItems } = programsAddConfig;
 
 export default function Programs() {
   const { data: authSess } = useSession();

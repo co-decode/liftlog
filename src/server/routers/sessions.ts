@@ -332,6 +332,15 @@ export const sessionsRouter = router({
           : null
       });
     }),
+
+  deleteSession: procedure
+    .input(z.number().int())
+    .mutation(async ({ input }) => {
+      return await prisma.exerciseSession.delete({
+        where: { sid: input }
+      })
+    }),
+
   deleteAll: procedure
     .input(
       z.object({

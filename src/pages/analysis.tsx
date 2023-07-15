@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-const { navItems, footerItems } = analysisConfig;
+const { footerItems } = analysisConfig;
 
 export type Accumulators = "TOTALREPS" | "AVERAGEWEIGHT" | "MAXIMUMWEIGHT" | "TOTALWEIGHT" | "TOTALSETS"
 type DataSession = { date: Date, exercises: ReducedSets }

@@ -14,15 +14,6 @@ export const metadata: Metadata = {
   description: "Create an account",
 };
 
-const navItems = [
-  { title: "Dashboard", href: "#" },
-  { title: "Workouts", href: "#" },
-  { title: "Sessions", href: "#" },
-  { title: "Schedule", href: "#" },
-  { title: "Community", href: "#" },
-  { title: "Exercise Library", href: "#" },
-];
-
 export default function RegisterPage() {
   const {data: session} = useSession()
   const router = useRouter();
@@ -35,7 +26,7 @@ export default function RegisterPage() {
     <div className="min-h-screen grid grid-rows-[min-content_1fr]">
       <header className="container z-40 bg-background">
         <div className="flex h-20 items-center justify-between py-6">
-          <MainNav items={navItems} />
+          <MainNav/>
           <nav>
             <Link
               href="/login"

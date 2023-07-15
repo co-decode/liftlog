@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/router";
 
-const { navItems, footerItems } = dashboardConfig;
+const { footerItems } = dashboardConfig;
 
 type Program = Programs[number];
 type ProgramSession = Program["programSessions"][number];

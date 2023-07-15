@@ -19,7 +19,7 @@ import { Programs, Sessions, useAuth } from "@/components/auth-and-context";
 
 type Program = Programs[number]
 
-const { navItems, footerItems } = addConfig
+const { footerItems } = addConfig
 
 export default function AddPage() {
   const { data: session, status } = useSession();

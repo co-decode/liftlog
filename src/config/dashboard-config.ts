@@ -3,8 +3,8 @@ import { AuthenticatedConfig } from "@/types"
 
 export const dashboardConfig: AuthenticatedConfig = {
   footerItems: [
-    { icon: Icons.list, href: "/sessions" },
     { icon: Icons.dumbbell, href: "/programs" },
+    { icon: Icons.list, href: "/sessions" },
     { icon: Icons.calendar, href: "/schedule" },
   ]
 }

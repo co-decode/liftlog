@@ -14,7 +14,7 @@ import { ProgramForm, SessionForm, programSchema } from "@/components/programs/a
 import { NavigationAlert } from "@/components/sessions/add-and-edit";
 import { z } from "zod";
 
-const { navItems, footerItems } = programsConfig;
+const { footerItems } = programsConfig;
 
 //const sessionSchema = z.object({
 //  sessId: z.number().int().nullable(),
@@ -325,7 +325,6 @@ export default function ProgramBreakdown() {
 
   return (
     <Layout
-      navItems={navItems}
       footerItems={footerItems}
       setWarning={edit === "EDIT" ? setWarning : undefined}
     >

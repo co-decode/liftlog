@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { Icons } from "@/components/icons";
 import Link from "next/link";
 
-const { navItems, footerItems } = dashboardConfig;
+const { footerItems } = dashboardConfig;
 
 type Program = Programs[number];
 type ProgramSession = Program["programSessions"][number];

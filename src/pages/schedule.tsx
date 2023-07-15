@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 
-const { navItems, footerItems } = scheduleConfig
+const { footerItems } = scheduleConfig
 
 type Session = NonNullable<Sessions>[number]
 

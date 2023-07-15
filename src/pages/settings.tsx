@@ -14,7 +14,7 @@ import { trpc } from "@/utils/trpc";
 import { inferProcedureInput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 
-const { navItems, footerItems } = dashboardConfig;
+const { footerItems } = dashboardConfig;
 
 export default function Settings() {
   const { data } = useSession()

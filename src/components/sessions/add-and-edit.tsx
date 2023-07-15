@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from "react";
 import { DatePicker } from "@/components/date-picker";
 import { Icons } from "@/components/icons";
 import * as z from "zod";
@@ -49,6 +49,7 @@ interface SessionFormProps {
   setEdit?: Dispatch<SetStateAction<"BREAKDOWN" | "EDIT">>;
   selectProgram?: Program
   setSelectProgram: Dispatch<SetStateAction<Program | undefined>>
+  setWarning?: MouseEventHandler<HTMLButtonElement>
 }
 
 export function SessionForm({
@@ -60,6 +61,7 @@ export function SessionForm({
   setEdit,
   selectProgram,
   setSelectProgram,
+  setWarning,
 }: SessionFormProps) {
   const { programs } = useAuth()
   const [removeMode, setRemoveMode] = useState<boolean>(false);
@@ -279,6 +281,20 @@ export function SessionForm({
             {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
             Submit
           </Button>
+          {
+          edit === "EDIT" ?
+          <Button 
+            type="button" 
+            disabled={loading} 
+            variant="destructive" 
+            className="w-full"
+            onClick={setWarning}
+          >
+            {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+            Delete
+          </Button>
+          : null
+          }
         </>
       )}
     </>
@@ -432,6 +448,48 @@ export function NavigationAlert({ warning, setWarning }: NavigationAlertProps) {
               <span className="capitalize">{warning.slice(1)}</span>
             </p>
           </Link>
+        </CardContent>
+        <CardFooter>
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={() => setWarning("")}
+          >
+            Cancel
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+interface DeletionAlertProps {
+  onDelete: MouseEventHandler<HTMLButtonElement>
+  setWarning: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export function DeletionAlert({ onDelete, setWarning }: DeletionAlertProps) {
+  useLockBody();
+  return (
+    <div className="z-50 bg-background/50 w-full h-full fixed !m-0 top-0">
+      <Card className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 min-w-max">
+        <CardHeader>
+          <CardTitle className="text-center mb-2">Are you sure?</CardTitle>
+          <CardDescription>
+            Are you sure you want to delete this session?
+            <br /> 
+            This action is permanent.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            className={cn(buttonVariants({ variant: "destructive" }), "w-full")}
+            onClick={onDelete}
+          >
+            <p>
+              Delete
+            </p>
+          </Button>
         </CardContent>
         <CardFooter>
           <Button
