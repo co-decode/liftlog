@@ -465,10 +465,11 @@ export function NavigationAlert({ warning, setWarning }: NavigationAlertProps) {
 
 interface DeletionAlertProps {
   onDelete: MouseEventHandler<HTMLButtonElement>
-  setWarning: React.Dispatch<React.SetStateAction<string>>;
+  setWarning: React.Dispatch<React.SetStateAction<string>>
+  sessionOrProgram: "Session" | "Program"
 }
 
-export function DeletionAlert({ onDelete, setWarning }: DeletionAlertProps) {
+export function DeletionAlert({ onDelete, setWarning, sessionOrProgram }: DeletionAlertProps) {
   useLockBody();
   return (
     <div className="z-50 bg-background/50 w-full h-full fixed !m-0 top-0">
@@ -476,7 +477,7 @@ export function DeletionAlert({ onDelete, setWarning }: DeletionAlertProps) {
         <CardHeader>
           <CardTitle className="text-center mb-2">Are you sure?</CardTitle>
           <CardDescription>
-            Are you sure you want to delete this session?
+            Are you sure you want to delete this{` ${sessionOrProgram}`}?
             <br /> 
             This action is permanent.
           </CardDescription>

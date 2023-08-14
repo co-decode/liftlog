@@ -18,7 +18,7 @@ import { Icons } from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { Combobox } from "@/components/combobox";
 import { z } from "zod";
-import { Dispatch, Key, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, Key, MouseEventHandler, SetStateAction, useEffect, useState } from "react";
 
 const sessionSchema = z.object({
   sessId: z.number().int().optional(),
@@ -65,6 +65,9 @@ interface ProgramFormProps {
   splitIndicesArray: UseFieldArrayReturn<Program, "splitIndices", "id">;
   page?: number;
   setPage: Dispatch<SetStateAction<number | undefined>>;
+  edit?: "BREAKDOWN" | "EDIT";
+  setEdit?: Dispatch<SetStateAction<"BREAKDOWN" | "EDIT">>;
+  setWarning?: MouseEventHandler<HTMLButtonElement>
   loading: boolean;
 }
 
@@ -73,6 +76,9 @@ export function ProgramForm({
   loading,
   page,
   setPage,
+  edit,
+  setEdit,
+  setWarning,
   programSessionsArray,
   splitIndicesArray,
 }: ProgramFormProps) {
@@ -121,10 +127,15 @@ export function ProgramForm({
     }
   }
 
+  const handleEdit: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault()
+    setEdit!("EDIT")
+  }
+
   return (
     <>
       <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-5 text-center">
-        Add Program
+        {edit ? null : "Add "} Program
       </h2>
       <Label htmlFor="programName">
         Program Name
@@ -132,7 +143,7 @@ export function ProgramForm({
           id="programName"
           className="mt-2"
           maxLength={24}
-          disabled={loading}
+          disabled={loading || edit === "BREAKDOWN"}
           {...form.register("programName")}
         />
         {form.formState.errors?.programName && (
@@ -151,7 +162,7 @@ export function ProgramForm({
             defaultValue={7}
             min="1"
             max="14"
-            disabled={loading}
+            disabled={loading || edit === "BREAKDOWN"}
             {...form.register("splitLength", { valueAsNumber: true })}
           />
           {form.formState.errors?.splitLength && (
@@ -174,32 +185,34 @@ export function ProgramForm({
             type="number"
             value={programSessionsArray.fields.length}
             onChange={handleProgramSessionsChange}
-            disabled={loading}
+            disabled={loading || edit === "BREAKDOWN"}
           />
         </Label>
       </div>
       <Table className="w-full">
-        <TableCaption className={cn("relative mb-3 text-left")}>
+        <TableCaption className={cn("relative mb-3", edit === "BREAKDOWN" ? "text-center" : "text-left")}>
           {removeMode
             ? "Delete Sessions"
             : programSessionsArray.fields.length
               ? "Current Sessions in the Program"
               : "Add Sessions to the Program"}
-          <Button
-            variant="ghost"
-            type="button"
-            className="absolute right-0 top-[50%] translate-y-[-50%]"
-            onClick={() =>
-              programSessionsArray.fields.length && setRemoveMode(!removeMode)
-            }
-            disabled={!programSessionsArray.fields.length}
-          >
-            {removeMode ? (
-              <Icons.edit className="w-4 h-4" />
-            ) : (
-              <Icons.trash className="w-4 h-4" />
-            )}
-          </Button>
+          {edit === "BREAKDOWN" ? null : (
+            <Button
+              variant="ghost"
+              type="button"
+              className="absolute right-0 top-[50%] translate-y-[-50%]"
+              onClick={() =>
+                programSessionsArray.fields.length && setRemoveMode(!removeMode)
+              }
+              disabled={!programSessionsArray.fields.length}
+            >
+              {removeMode ? (
+                <Icons.edit className="w-4 h-4" />
+              ) : (
+                <Icons.trash className="w-4 h-4" />
+              )}
+            </Button>
+          )}
         </TableCaption>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
@@ -281,10 +294,38 @@ export function ProgramForm({
               </div>
             );
           })*/}
+      {edit === "BREAKDOWN" && setEdit ? (
+        <Button
+          type="button"
+          variant={"destructive"}
+          className="w-full"
+          onClick={handleEdit}
+        >
+          Edit
+        </Button>
+      ) : (
 
-      <Button type="submit" disabled={loading}>
-        Submit
-      </Button>
+        <>
+          <Button type="submit" disabled={loading}>
+            {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+            Submit
+          </Button>
+          {
+            edit === "EDIT" ?
+              <Button
+                type="button"
+                disabled={loading}
+                variant="destructive"
+                className="w-full"
+                onClick={setWarning}
+              >
+                {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+                Delete
+              </Button>
+              : null
+          }
+        </>
+      )}
     </>
   );
 }
@@ -293,6 +334,7 @@ interface SessionFormProps {
   form: UseFormReturn<Program>;
   sessInd: number;
   setPage: Dispatch<SetStateAction<number | undefined>>;
+  edit?: "EDIT" | "BREAKDOWN";
   loading: boolean;
   splitIndicesArray: UseFieldArrayReturn<Program, "splitIndices", "id">;
   programSessionsArray: UseFieldArrayReturn<Program, "programSessions", "id">;
@@ -303,6 +345,7 @@ export function SessionForm({
   sessInd,
   loading,
   setPage,
+  edit,
   splitIndicesArray,
   programSessionsArray,
 }: SessionFormProps) {
@@ -325,7 +368,7 @@ export function SessionForm({
             id="sessionName"
             className="scroll-m-20 text-2xl font-semibold tracking-tight w-64"
             maxLength={16}
-            disabled={loading}
+            disabled={loading || edit === "BREAKDOWN"}
             value={watchSessName}
             {...form.register(`programSessions.${sessInd}.name`)}
           />
@@ -343,6 +386,7 @@ export function SessionForm({
         <Card className="py-2 pb-3">
           <CheckboxIndices
             form={form}
+            edit={edit}
             sessInd={sessInd}
             splitIndicesArray={splitIndicesArray}
           />
@@ -352,12 +396,15 @@ export function SessionForm({
       <ProgramSets
         form={form}
         sessInd={sessInd}
+        edit={edit}
         loading={loading}
         programSetsArray={programSetsArray}
       />
-      <Button type="button" onClick={handleAddSet}>
-        Add a Set
-      </Button>
+      {edit === "BREAKDOWN" ? null :
+        <Button type="button" onClick={handleAddSet}>
+          Add a Set
+        </Button>
+      }
     </>
   );
 }
@@ -369,6 +416,7 @@ interface ProgramSetsProps {
     `programSessions.${number}.programSets`,
     "id"
   >;
+  edit?: "EDIT" | "BREAKDOWN";
   sessInd: number;
   loading: boolean;
 }
@@ -376,6 +424,7 @@ interface ProgramSetsProps {
 export function ProgramSets({
   form,
   sessInd,
+  edit,
   loading,
   programSetsArray,
 }: ProgramSetsProps) {
@@ -388,6 +437,7 @@ export function ProgramSets({
               form={form}
               sessInd={sessInd}
               setInd={setIndex}
+              edit={edit}
               programSetsArray={programSetsArray}
             />
           </div>
@@ -402,12 +452,14 @@ interface ProgramSetExercisesProps {
   sessInd: number;
   setInd: number;
   programSetsArray: UseFieldArrayReturn<Program, `programSessions.${number}.programSets`, "id">;
+  edit?: "EDIT" | "BREAKDOWN";
 }
 
 export function ProgramSetExercises({
   form,
   sessInd,
   setInd,
+  edit,
   programSetsArray
 }: ProgramSetExercisesProps) {
   const programSetExercisesArray = useFieldArray({
@@ -430,14 +482,16 @@ export function ProgramSetExercises({
     <div className="grid gap-3">
       <h2 className="scroll-m-20 text-xl font-semibold tracking-tight relative">
         Set {` ${setInd + 1}`}
-        <Button
-          type="button"
-          variant={"ghost"}
-          className="absolute right-0 top-1/2 parent group hover:bg-destructive/5 -translate-y-1/2"
-          onClick={handleRemoveSet}
-        >
-          <Icons.trash className="w-4 h-4 group-hover:text-red-600 group-hover:scale-125 child transition" />
-        </Button>
+        {edit === "BREAKDOWN" ? null :
+          <Button
+            type="button"
+            variant={"ghost"}
+            className="absolute right-0 top-1/2 parent group hover:bg-destructive/5 -translate-y-1/2"
+            onClick={handleRemoveSet}
+          >
+            <Icons.trash className="w-4 h-4 group-hover:text-red-600 group-hover:scale-125 child transition" />
+          </Button>
+        }
       </h2>
       {fields.map((field, exInd) => {
         const watchExName = form.watch(
@@ -457,15 +511,18 @@ export function ProgramSetExercises({
                 programSetValue={update}
                 programIndex={exInd}
                 currentExercises={fields.map((v) => v.exerciseName)}
+                edit={edit}
               />
-              <Button
-                type="button"
-                variant={"ghost"}
-                className="absolute right-0 parent group hover:bg-destructive/5"
-                onClick={handleRemoveEx}
-              >
-                <Icons.close className="w-4 h-4 group-hover:text-red-600 group-hover:scale-125 child transition" />
-              </Button>
+              {edit === "BREAKDOWN" ? null :
+                <Button
+                  type="button"
+                  variant={"ghost"}
+                  className="absolute right-0 parent group hover:bg-destructive/5"
+                  onClick={handleRemoveEx}
+                >
+                  <Icons.close className="w-4 h-4 group-hover:text-red-600 group-hover:scale-125 child transition" />
+                </Button>
+              }
             </div>
             {form.formState.errors?.programSessions?.[sessInd]?.programSets?.[
               setInd
@@ -477,19 +534,22 @@ export function ProgramSetExercises({
           </div>
         );
       })}
-      <Button
-        type="button"
-        className="w-[200px] ml-5"
-        onClick={handleAddExercise}
-      >
-        Add Exercise
-      </Button>
+      {edit === "BREAKDOWN" ? null :
+        <Button
+          type="button"
+          className="w-[200px] ml-5"
+          onClick={handleAddExercise}
+        >
+          Add Exercise
+        </Button>
+      }
     </div>
   );
 }
 
 interface CheckboxIndicesProps {
   form: UseFormReturn<Program>;
+  edit?: "BREAKDOWN" | "EDIT";
   sessInd: number;
   splitIndicesArray: UseFieldArrayReturn<Program, "splitIndices", "id">;
 }
@@ -498,6 +558,7 @@ type checkStates = "CHECKED" | "DISABLED" | "UNCHECKED"
 
 export function CheckboxIndices({
   form,
+  edit,
   sessInd,
   splitIndicesArray,
 }: CheckboxIndicesProps) {
@@ -548,7 +609,7 @@ export function CheckboxIndices({
               className={
                 form.formState.errors.splitIndices && "border-destructive"
               }
-              disabled={defaultState === "DISABLED"}
+              disabled={defaultState === "DISABLED" || edit === "BREAKDOWN"}
               onCheckedChange={(e) => handleCheck(e, ind)}
             />
           </div>

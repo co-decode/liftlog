@@ -91,11 +91,12 @@ interface ComboboxProps {
   setValue?: React.Dispatch<React.SetStateAction<string | undefined>>;
   programSetValue?: UseFieldArrayUpdate<Program, `programSessions.${number}.programSets.${number}.sets`>
   programIndex?: number
+  edit?: "BREAKDOWN" | "EDIT"
   currentExercises: string[]
 
 }
 
-export function Combobox({ value, setValue, currentExercises, programSetValue, programIndex }: ComboboxProps) {
+export function Combobox({ value, setValue, currentExercises, programSetValue, programIndex, edit }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState(frameworks.slice(0, 2));
 
@@ -128,6 +129,7 @@ export function Combobox({ value, setValue, currentExercises, programSetValue, p
           role="combobox"
           aria-expanded={open}
           className={cn("w-[200px] capitalize justify-between", !value && "text-primary/50")}
+          disabled={edit === "BREAKDOWN"}
         >
           {/*value
             ? frameworks.find((framework) => framework.value === value)?.label

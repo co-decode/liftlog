@@ -36,9 +36,12 @@ interface AuthContextValue {
 
   currentProgram?: CurrentProgram
   setCurrentProgram?: Dispatch<SetStateAction<CurrentProgram | undefined>>
+
+  passwordSet: boolean
+  setPasswordSet?: Dispatch<SetStateAction<boolean>>
 }
 
-const AuthContext = createContext<AuthContextValue>({ weightUnit: "KG" });
+const AuthContext = createContext<AuthContextValue>({ weightUnit: "KG", passwordSet: false });
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -53,6 +56,7 @@ export default function AuthProvider({
   const [workoutSummary, setWorkoutSummary] = useState<Summary>()
   const [weightUnit, setWeightUnit] = useState<"KG" | "LB">("KG")
   const [currentProgram, setCurrentProgram] = useState<CurrentProgram>()
+  const [passwordSet, setPasswordSet] = useState<boolean>(false)
 
   return (
     <AuthContext.Provider value={{
@@ -68,6 +72,8 @@ export default function AuthProvider({
       setWeightUnit,
       currentProgram,
       setCurrentProgram,
+      passwordSet,
+      setPasswordSet
     }}>
       {children}
     </AuthContext.Provider>

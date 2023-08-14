@@ -11,7 +11,7 @@ import { AppRouter } from "@/server/routers/_app";
 import Layout from "@/components/authenticated-layout"
 import { programsConfig } from "@/config/programs-config";
 import { ProgramForm, SessionForm, programSchema } from "@/components/programs/add-and-edit";
-import { NavigationAlert } from "@/components/sessions/add-and-edit";
+import { DeletionAlert, NavigationAlert } from "@/components/sessions/add-and-edit";
 import { z } from "zod";
 
 const { footerItems } = programsConfig;
@@ -131,6 +131,27 @@ export default function ProgramBreakdown() {
     },
     //onError()
   });
+
+  const deleteProgram = trpc.programs.deleteProgram.useMutation({
+    onSuccess() {
+      console.log("Successfully deleted!");
+    }
+  })
+
+  const onDelete = async() => {
+    if (!program?.programId || !programs || !setPrograms) return;
+    setLoading(true)
+    try {
+      await deleteProgram.mutateAsync(program?.programId)
+      setPrograms(programs.filter(p => p.programId !== program.programId))
+      router.push("/programs")
+      setLoading(false)
+    } catch (error) {
+      console.error(error, "deleteProgram call failed")
+      setLoading(false)
+    }
+  }
+
   const onSubmit: SubmitHandler<Program> = async (
     values
   ) => {
@@ -338,6 +359,9 @@ export default function ProgramBreakdown() {
               form={form}
               page={page} // ?
               setPage={setPage}
+              edit={edit}
+              setEdit={setEdit}
+              setWarning={() => setWarning("DELETION")}
               loading={loading}
               splitIndicesArray={splitIndicesArray}
               programSessionsArray={programSessionsArray}
@@ -347,6 +371,7 @@ export default function ProgramBreakdown() {
               form={form}
               sessInd={page}
               setPage={setPage}
+              edit={edit}
               loading={loading}
               splitIndicesArray={splitIndicesArray}
               programSessionsArray={programSessionsArray}
@@ -354,7 +379,14 @@ export default function ProgramBreakdown() {
           )}
         </form>
       </div>
-      {warning ? (
+      {warning === "DELETION" ? (
+        <DeletionAlert 
+          setWarning={setWarning} 
+          onDelete={onDelete}
+          sessionOrProgram="Program"
+        />
+      )
+      : warning ? (
         <NavigationAlert warning={warning} setWarning={setWarning} />
       ) : null}
     </Layout>

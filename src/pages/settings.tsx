@@ -1,9 +1,9 @@
 import Layout from "@/components/authenticated-layout";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { dashboardConfig } from "@/config/dashboard-config";
 import { useAuth } from "@/components/auth-and-context";
-import { Button } from "@/components/ui/button";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,54 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { trpc } from "@/utils/trpc";
 import { inferProcedureInput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
+import { Toaster } from "@/components/ui/toaster";
+import { toast } from "@/components/ui/use-toast";
+import { useLockBody } from "@/hooks/use-lock-body";
+import { cn } from "@/lib/utils";
 
 const { footerItems } = dashboardConfig;
 
 export default function Settings() {
   const { data } = useSession()
+  const { passwordSet, setPasswordSet } = useAuth()
+  const [warning, setWarning] = useState<boolean>(true)
+  const [passField, setPassField] = useState<string>("")
+  const passFieldRef = useRef<HTMLInputElement | null>()
+
+  const updatePassword = trpc.users.updatePassword.useMutation({
+    onSuccess() {
+      console.log("Password successfully updated!")
+    }
+  })
+
+  function handleSetPassword() {
+    if (!passField) 
+      return toast({
+        title: "Error",
+        description: "Please ensure that you have entered a valid password.",
+        variant: "destructive",
+      });
+
+   updatePassword.mutateAsync({
+     userId: data?.user.id,
+     password: passField
+   })
+    
+    setPassField("")
+    if (passwordSet) 
+      setWarning(false)
+    if (passFieldRef.current && setPasswordSet) {
+      passFieldRef.current.value = ""
+      setPasswordSet(true)
+    }
+
+    return toast({
+      title: "Success!",
+      description: "The password has been successfully set!",
+      variant: "default",
+    })
+
+  }
 
   return (
     <Layout footerItems={footerItems}>
@@ -28,7 +71,7 @@ export default function Settings() {
         <Preferences />
         <Card className="w-[300px]">
           <CardHeader className="text-sm text-muted-foreground font-medium leading-none">
-            Set up a Password
+            {passwordSet ? "Change Password" : "Set up a Password"}
           </CardHeader>
           <CardContent className="grid gap-3">
             <Label>
@@ -36,10 +79,15 @@ export default function Settings() {
               <Input
                 className="mt-3"
                 type="password"
+                ref={(e) => passFieldRef.current = e}
+                onChange={e => setPassField(e.target.value)}
               />
             </Label>
-            <Button className="w-full">
-              Enable Credentials
+            <Button className="w-full" 
+              onClick={() => passwordSet ? setWarning(true) : handleSetPassword()}
+              disabled={!passField}
+            >
+              {passwordSet ? "Update Password" : "Enable Credentials"}
             </Button>
           </CardContent>
         </Card>
@@ -56,6 +104,11 @@ export default function Settings() {
         </Card>
 
       </div>
+      <Toaster />
+      {warning
+        ? <PasswordAlert setWarning={setWarning} handleSetPassword={handleSetPassword} />
+        : null
+      }
     </Layout>
   );
 }
@@ -223,4 +276,46 @@ function Preferences({ }: PreferencesProps) {
       </Card>
     </>
   )
+}
+
+interface PasswordAlertProps {
+  setWarning: Dispatch<SetStateAction<boolean>>
+  handleSetPassword: MouseEventHandler
+}
+
+function PasswordAlert({ setWarning, handleSetPassword }: PasswordAlertProps) {
+  useLockBody();
+  return (
+    <div className="z-50 bg-background/50 w-full h-full fixed !m-0 top-0">
+      <Card className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 min-w-max">
+        <CardHeader>
+          <CardTitle className="text-center mb-2">Change Password?</CardTitle>
+          <CardDescription>
+            Are you sure you wish to change your password?
+            <br /> Your previous password will be overwritten.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            className={"w-full"}
+            variant={"destructive"}
+            onClick={handleSetPassword}
+          >
+            <p>
+              Change Password
+            </p>
+          </Button>
+        </CardContent>
+        <CardFooter>
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={() => setWarning(false)}
+          >
+            Cancel
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }

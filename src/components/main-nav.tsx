@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import { MobileNav } from "./mobile-nav";
+import { useSession } from "next-auth/react";
 
 type NavItem = {
   title: string;
@@ -19,44 +20,23 @@ interface MainNavProps {
 }
 
 export function MainNav({ items, children }: MainNavProps) {
-  const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
+  //const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
+  const { status } = useSession()
+
+  function returnHref() {
+    return status === "authenticated"
+      ? "/dashboard"
+      : status === "unauthenticated"
+      ? "/"
+      : ""
+  }
 
   return (
     <div className="flex gap-6 md:gap-10">
-      <Link href="/" className="items-center space-x-2 flex">
+      <Link href={returnHref()} className="items-center space-x-2 flex">
         <Icons.dumbbell />
         <span className="font-bold inline-block">{"LiftLog"}</span>
       </Link>
-      {/*items?.length ? (
-        <nav className="hidden gap-6 md:flex">
-          {items?.map((item, index) => (
-            <Link
-              key={index}
-              href={item.disabled ? "#" : item.href}
-              className={cn(
-                "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
-                item.disabled && "cursor-not-allowed opacity-80"
-              )}
-            >
-              {item.title}
-            </Link>
-          ))}
-        </nav>
-      ) : null*/}
-      <button
-        className="items-center space-x-2 hidden"
-        onClick={() => setShowMobileMenu(!showMobileMenu)}
-      >
-        {showMobileMenu ? (
-          <Icons.close className="mr-1" />
-        ) : (
-          <Icons.dumbbell className="mr-1" />
-        )}
-        <span className="font-bold">LiftLog</span>
-      </button>
-      {/*showMobileMenu && items && (
-        <MobileNav items={items}>{children}</MobileNav>
-      )*/}
     </div>
   );
 }

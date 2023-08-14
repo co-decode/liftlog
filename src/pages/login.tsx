@@ -16,15 +16,6 @@ export const metadata: Metadata = {
   description: "Login to your account",
 };
 
-const navItems = [
-  { title: "Dashboard", href: "#" },
-  { title: "Workouts", href: "#" },
-  { title: "Sessions", href: "#" },
-  { title: "Schedule", href: "#" },
-  { title: "Community", href: "#" },
-  { title: "Exercise Library", href: "#" },
-];
-
 export default function LoginPage() {
   const {data: session} = useSession()
   const router = useRouter();
@@ -37,7 +28,7 @@ export default function LoginPage() {
     <div className="min-h-screen grid grid-rows-[min-content_1fr]">
       <header className="container z-40 bg-background">
         <div className="flex h-16 items-center justify-between py-4">
-          <MainNav items={navItems} />
+          <MainNav />
           <nav>
             <Link
               href="/"

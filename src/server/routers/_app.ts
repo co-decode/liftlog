@@ -4,6 +4,7 @@ import { sessionsRouter } from './sessions';
 import { programsRouter } from './programs';
 import { z } from 'zod';
 import { prisma } from '../prisma';
+import { select } from 'd3';
 
 const layoutRouter = router({
   initialise: procedure
@@ -44,6 +45,15 @@ const layoutRouter = router({
             }
           },
         });
+        const passwordSet = await prisma.user.findUnique({
+          where: {
+            id: userId
+          },
+          select: {
+            password: true
+          }
+        }) ? true : false
+
         const allSessions = sessions?.exerciseSessions.map(sess => ({
           ...sess,
           date: sess.date,
@@ -89,7 +99,7 @@ const layoutRouter = router({
         const programName = allPrograms
           .find(p => p.programId === currentP?.programId)?.programName
         const currentProgram = { ...currentP, programName }
-        return { allSessions, allPrograms, currentProgram }
+        return { allSessions, passwordSet, allPrograms, currentProgram }
       })
     })
 })

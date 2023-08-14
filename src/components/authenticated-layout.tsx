@@ -25,7 +25,7 @@ export default function AuthenticatedLayout({
   className = "",
 }: AuthenticatedLayoutProps) {
   const router = useRouter();
-  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit, currentProgram, setCurrentProgram } = useAuth();
+  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit, currentProgram, setCurrentProgram, setPasswordSet } = useAuth();
   const { status, data: session } = useSession();
 
   useEffect(() => {
@@ -49,8 +49,8 @@ export default function AuthenticatedLayout({
     if (exerciseSessions || programs || currentProgram) return
     if (session && !initialiseContext.data)
       initialiseContext.refetch()
-    else if (initialiseContext.data && setExerciseSessions && setPrograms && setCurrentProgram) {
-      const { allSessions, allPrograms, currentProgram: selectedProgram }
+    else if (initialiseContext.data && setExerciseSessions && setPrograms && setCurrentProgram && setPasswordSet) {
+      const { allSessions, passwordSet, allPrograms, currentProgram: selectedProgram }
         = initialiseContext.data
 
       if (allSessions)
@@ -60,6 +60,9 @@ export default function AuthenticatedLayout({
             date: new Date(sess.date),
           }))
         )
+
+      if (passwordSet)
+        setPasswordSet(true)
 
       if (allPrograms)
         setPrograms(allPrograms)
@@ -75,7 +78,7 @@ export default function AuthenticatedLayout({
         })
 
     }
-  }, [exerciseSessions, programs, currentProgram, session, initialiseContext, setExerciseSessions, setPrograms, setCurrentProgram])
+  }, [exerciseSessions, programs, currentProgram, session, initialiseContext, setExerciseSessions, setPrograms, setCurrentProgram, setPasswordSet])
 /*
   const getSessions = trpc.sessions.findSessions
     .useQuery(session?.user?.id, {

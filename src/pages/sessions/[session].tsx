@@ -284,7 +284,7 @@ export default function SessionBreakdown() {
         </Form>
       </div>
       {warning === "DELETION" ? (
-        <DeletionAlert setWarning={setWarning} onDelete={onDelete} />
+        <DeletionAlert setWarning={setWarning} onDelete={onDelete} sessionOrProgram="Session"/>
       )
       : warning ? (
         <NavigationAlert warning={warning} setWarning={setWarning} />

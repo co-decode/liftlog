@@ -67,6 +67,25 @@ export const usersRouter = router({
         },
       });
     }),
+  updatePassword: procedure
+    .input(
+      z.object({
+        userId: z.number().int(),
+        password: z.string()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const {userId: id, password} = input;
+
+      const salt = await bcrypt.genSalt(10)
+      const hashedPassword = await bcrypt.hash(password, salt)
+
+      return await prisma.user.update({
+        where: { id },
+        data: { password: hashedPassword }
+      })
+    })
+
 })
 
 export const caller = usersRouter.createCaller({})
