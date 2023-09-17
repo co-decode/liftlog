@@ -56,7 +56,7 @@ export default function IndexPage() {
             Get Started
           </Link>
           <Link
-            href={"github.com/co-decode/liftlog"}
+            href={"https://github.com/co-decode/liftlog"}
             target="_blank"
             rel="noreferrer"
             className={cn(buttonVariants({ variant: "outline", size: "lg" }), status === "loading" && "pointer-events-none")}
@@ -80,13 +80,18 @@ export default function IndexPage() {
           <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
             View a demonstration of LiftLog&apos;s features.
           </p>
-          <Button
-            disabled={status === "loading"}
-            role="link"
+          <Link
+            href="https://cody-ross.net/liftlog"
+            target="_blank"
           >
-            Demonstration
-            <Icons.arrowRight className="h-4 w-4 ml-2" />
-          </Button>
+            <Button
+              disabled={status === "loading"}
+              role="link"
+            >
+              Demonstration
+              <Icons.arrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </section>
       <section
