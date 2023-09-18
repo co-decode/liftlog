@@ -64,7 +64,7 @@ export default function ProgramBreakdown() {
 
   const program = useMemo(() => {
     setLoading(true)
-    console.log('query: ', router.query.program)
+    //console.log('query: ', router.query.program)
     if (programs) {
       const prog = programs.find(
         (prog) => 'name-' + prog.programName == router.query.program
@@ -98,7 +98,7 @@ export default function ProgramBreakdown() {
         }) as Program["programSessions"]
       }
 
-      console.log("conversion: ", convertedProg)
+      //console.log("conversion: ", convertedProg)
       setLoading(false)
       return convertedProg;
 
@@ -120,10 +120,10 @@ export default function ProgramBreakdown() {
     name: `splitIndices`,
   });
 
-  useEffect(() => {
-    console.log(form.formState.errors)
-  }, [form.formState.errors]
-  )
+  //useEffect(() => {
+  //  console.log(form.formState.errors)
+  //}, [form.formState.errors]
+  //)
 
   const updateProgram = trpc.programs.updateProgram.useMutation({
     onSuccess() {
@@ -271,7 +271,7 @@ export default function ProgramBreakdown() {
           v,
           exIndex
         ) => {
-          console.log('eTA: ', v)
+          //console.log('eTA: ', v)
           if (v.setId !== undefined) return a
           return [...a, {
             setIndex,
@@ -326,11 +326,11 @@ export default function ProgramBreakdown() {
       indicesToUpdate,
       sessionsToUpdate
     }
-    console.log('input: ', input)
+    //console.log('input: ', input)
     try {
       type Output = inferProcedureOutput<AppRouter["programs"]["updateProgram"]>
       const result = await updateProgram.mutateAsync(input) as Output
-      console.log('result: ', result)
+      //console.log('result: ', result)
       if (result === null) return // handle error?
       const index = programs!.findIndex(p => p.programId === program.programId) as number
       const replacement = [...programs!]

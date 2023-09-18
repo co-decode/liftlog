@@ -56,7 +56,7 @@ export function DatePicker({ date, setDate, edit }: DatePickerProps) {
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPPp") : <span>Pick a date and time</span>}
+          {date ? format(date, "PPp") : <span>Pick a date and time</span>}
         </Button>
         </FormControl>
       </PopoverTrigger>

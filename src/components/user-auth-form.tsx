@@ -75,7 +75,7 @@ export function UserAuthForm({ register, className, ...props }: UserAuthFormProp
       callbackUrl: "/dashboard",
     });
 
-    console.log(signInResult)
+    //console.log(signInResult)
 
     if (!signInResult?.ok) {
       setIsLoading(false);
