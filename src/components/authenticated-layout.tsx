@@ -83,7 +83,7 @@ export default function AuthenticatedLayout({
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
           <MainNav />
-          {initialiseContext.isLoading && <Icons.spinner className="absolute left-[49.5%] h-4 w-4 animate-spin" />}
+          {(initialiseContext.isLoading || loggingOut) && <Icons.spinner className="absolute left-[49.5%] h-4 w-4 animate-spin" />}
           {status !== "authenticated" ? null : (
             <UserAccountNav
               user={{
