@@ -26,7 +26,6 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
   const context = useAuth()
 
   function clearContext() {
-    console.log("RUNNING")
     const { setLoggingOut, setExerciseSessions, setPrograms, setWeightUnit, setPasswordSet, setCurrentProgram, setWorkoutSummary, setSelectedProgramSession } = context
     setLoggingOut!(true)
     setExerciseSessions!(undefined)

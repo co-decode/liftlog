@@ -25,6 +25,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [selectedSession, setSelectedSession] = useState<ProgramSession>();
   const [selectedProgram, setSelectedProgram] = useState<Program>();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const getDefaultProgramSession = useMemo(() => {
     if (!programs || !currentProgram?.startDate || !currentProgram.programId)
@@ -32,7 +33,7 @@ export default function Dashboard() {
     const program = programs.find(p => p.programId === currentProgram.programId)
     if (!program)
       throw new Error("getDefaultProgramSession: Dashboard program search failed: currentProgram does not exist in Programs")
-    const today = new Date(Date.now()).setHours(0, 0, 0, 0) // ! Remove offset, it was used for testing
+    const today = new Date(Date.now()).setHours(0, 0, 0, 0)
     const daysSinceStart =
       (today - currentProgram.startDate.getTime()) / (1000 * 60 * 60 * 24)
     const splitIndex = Math.floor(daysSinceStart) % program.splitLength
@@ -42,6 +43,10 @@ export default function Dashboard() {
     return { session: session?.name, index: splitIndex }
   }, [programs, currentProgram?.startDate, currentProgram?.programId])
 
+  useEffect(() => {
+    console.log(selectedProgram)
+  }, [selectedProgram])
+
 
   useEffect(() => {
     const program =
@@ -50,6 +55,7 @@ export default function Dashboard() {
     const session = program?.programSessions
       .find(s => s.name === getDefaultProgramSession?.session)
     setSelectedSession(session)
+    setLoading(false)
   }, [programs, currentProgram, getDefaultProgramSession?.session])
 
   function handleBegin() {
@@ -87,7 +93,7 @@ export default function Dashboard() {
               disabled={!programs}
             >
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="No Program Selected" />
+                <SelectValue placeholder={!loading && "No Program Selected"} />
               </SelectTrigger>
               <SelectContent>
                 {programs?.map((p) => (
