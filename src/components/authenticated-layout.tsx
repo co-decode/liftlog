@@ -8,6 +8,7 @@ import { SiteFooter } from "./site-footer";
 import { useSession } from "next-auth/react";
 import { FooterConfig } from "@/types";
 import { trpc } from "@/utils/trpc";
+import { Icons } from "./icons";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -82,6 +83,7 @@ export default function AuthenticatedLayout({
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
           <MainNav />
+          {initialiseContext.isLoading && <Icons.spinner className="absolute left-[49.5%] h-4 w-4 animate-spin" />}
           {status !== "authenticated" ? null : (
             <UserAccountNav
               user={{
