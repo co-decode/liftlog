@@ -14,6 +14,7 @@ import {
 import { Icons } from "@/components/icons";
 import { UserAvatar } from "@/components/user-avatar";
 import { ModeToggle } from "./mode-toggle";
+import { useAuth } from "./auth-and-context";
 //import { useRouter } from "next/router";
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -22,11 +23,25 @@ interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
   //const router = useRouter()
+  const context = useAuth()
+
+  function clearContext() {
+    console.log("RUNNING")
+    const { setLoggingOut, setExerciseSessions, setPrograms, setWeightUnit, setPasswordSet, setCurrentProgram, setWorkoutSummary, setSelectedProgramSession } = context
+    setLoggingOut!(true)
+    setExerciseSessions!(undefined)
+    setPrograms!(undefined)
+    setWeightUnit!("KG")
+    setPasswordSet!(false)
+    setCurrentProgram!(undefined)
+    setWorkoutSummary!(undefined)
+    setSelectedProgramSession!(undefined)
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <UserAvatar
-          user={{ name: user.name || null, image: user.image || null }}
+          user={{ email: user.email || null, image: user.image || null }}
           className="h-8 w-8"
         />
       </DropdownMenuTrigger>
@@ -44,32 +59,32 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/dashboard">
-          <Icons.home className="w-4 h-4 mr-2"/>
-          Dashboard
+            <Icons.home className="w-4 h-4 mr-2" />
+            Dashboard
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/programs">
-          <Icons.dumbbell className="w-4 h-4 mr-2"/>
-          Programs
+            <Icons.dumbbell className="w-4 h-4 mr-2" />
+            Programs
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/sessions">
-          <Icons.list className="w-4 h-4 mr-2"/>
-          Sessions
+            <Icons.list className="w-4 h-4 mr-2" />
+            Sessions
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/analysis">
-          <Icons.graph className="w-4 h-4 mr-2"/>
-          Analysis
+            <Icons.graph className="w-4 h-4 mr-2" />
+            Analysis
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/schedule">
-          <Icons.calendar className="w-4 h-4 mr-2"/>
-          Schedule
+            <Icons.calendar className="w-4 h-4 mr-2" />
+            Schedule
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -78,16 +93,20 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
             Settings
           </Link>
         </DropdownMenuItem>
-          <ModeToggle />
+        <ModeToggle />
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={async (event) => {
             event.preventDefault();
-            const data = await signOut({
+            clearContext()
+
+            await signOut({
               //callbackUrl: `${window.location.origin}/login`,
               redirect: false,
             });
+
+            context.setLoggingOut!(false)
             //router.push(data.url)
           }}
         >

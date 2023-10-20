@@ -26,19 +26,26 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token,  user }) {
-      if (user)
+    async jwt({ token, trigger, session, user }) {
+      if (trigger == "update" && session?.image) {
+        token.picture = session.image
+      }
+      if (trigger == "signIn" && user) {
         token.id = user.id
+        token.picture = user.image
+      }
       return token
     },
     async session({ session, token }) {
-      if (session.user)
+      if (session.user) {
         session.user.id = Number(token.id)
+        session.user.image = token.picture
+      }
 
       return session
     }
   },
-      
+
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -67,6 +74,7 @@ export const authOptions: NextAuthOptions = {
               id: String(checkCreds.id),
               name: checkCreds.name || credentials.identifier.split("@")[0],
               email: credentials.identifier,
+              image: checkCreds.image,
             };
           } else {
             // If you return null then an error will be displayed advising the user to check their details.

@@ -6,12 +6,11 @@ import { useEffect } from "react";
 import { UserAccountNav } from "./user-account-nav";
 import { SiteFooter } from "./site-footer";
 import { useSession } from "next-auth/react";
-import { FooterConfig, NavConfig } from "@/types";
+import { FooterConfig } from "@/types";
 import { trpc } from "@/utils/trpc";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
-  //navItems: NavConfig;
   footerItems: FooterConfig;
   setWarning?: React.Dispatch<React.SetStateAction<string>>;
   className?: string;
@@ -19,13 +18,12 @@ interface AuthenticatedLayoutProps {
 
 export default function AuthenticatedLayout({
   children,
-  //navItems,
   footerItems,
   setWarning,
   className = "",
 }: AuthenticatedLayoutProps) {
   const router = useRouter();
-  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit, currentProgram, setCurrentProgram, setPasswordSet } = useAuth();
+  const { programs, setPrograms, exerciseSessions, setExerciseSessions, weightUnit, setWeightUnit, currentProgram, setCurrentProgram, setPasswordSet, setWorkoutSummary, setSelectedProgramSession, loggingOut } = useAuth();
   const { status, data: session } = useSession();
 
   useEffect(() => {
@@ -46,7 +44,7 @@ export default function AuthenticatedLayout({
   }, [weightUnit, setWeightUnit])
 
   useEffect(() => {
-    if (exerciseSessions || programs || currentProgram) return
+    if (loggingOut || exerciseSessions || programs || currentProgram) return
     if (session && !initialiseContext.data)
       initialiseContext.refetch()
     else if (initialiseContext.data && setExerciseSessions && setPrograms && setCurrentProgram && setPasswordSet) {
@@ -68,8 +66,8 @@ export default function AuthenticatedLayout({
         setPrograms(allPrograms)
 
       if (
-        selectedProgram.programId && 
-        selectedProgram.programName && 
+        selectedProgram.programId &&
+        selectedProgram.programName &&
         selectedProgram.startDate
       )
         setCurrentProgram({
@@ -78,62 +76,12 @@ export default function AuthenticatedLayout({
         })
 
     }
-  }, [exerciseSessions, programs, currentProgram, session, initialiseContext, setExerciseSessions, setPrograms, setCurrentProgram, setPasswordSet])
-/*
-  const getSessions = trpc.sessions.findSessions
-    .useQuery(session?.user?.id, {
-      enabled: false
-    });
-
-  const getPrograms = trpc.programs.findPrograms.useQuery(
-    session?.user?.id,
-    { enabled: false }
-  )
-
-  const getCurrentProgram = trpc.programs.findCurrentProgram.useQuery(
-    session?.user?.id,
-    { enabled: false }
-  )
-
-  // Ideally would want to combine call for exercises and programs into a transaction
-  useEffect(() => {
-    if (exerciseSessions) return
-    if (session && !getSessions.data)
-      getSessions.refetch()
-    else if (getSessions.data && setExerciseSessions)
-      setExerciseSessions(
-        getSessions.data.map(sess => ({
-          ...sess,
-          date: new Date(sess.date),
-        }))
-      )
-    // Is it possible for the user's information to be persisted beyond log out?
-  }, [exerciseSessions, setExerciseSessions, getSessions.data, getSessions, session]);
-
-  useEffect(() => {
-    if (programs) return
-    if (session && !getPrograms.data)
-      getPrograms.refetch()
-    if (getPrograms.data && setPrograms)
-      setPrograms(getPrograms.data)
-  }, [programs, setPrograms, getPrograms.data, getPrograms, session])
-
-  useEffect(() => {
-    if (currentProgram) return
-    if (session && !getCurrentProgram.data && programs)
-      getCurrentProgram.refetch()
-    if (getCurrentProgram.data && setCurrentProgram && programs) {
-      const { programName, programId, startDate } = getCurrentProgram.data
-      setCurrentProgram({ programName, programId, startDate: new Date(startDate) })
-    } else if (setCurrentProgram && getCurrentProgram.data === null)
-      setCurrentProgram({})
-  }, [currentProgram, setCurrentProgram, getCurrentProgram.data, getCurrentProgram, session, programs])
-*/
+  }, [exerciseSessions, programs, currentProgram, session, initialiseContext, setExerciseSessions, setPrograms, setCurrentProgram, setPasswordSet, loggingOut])
   return (
     <div className="flex min-h-screen flex-col space-y-6">
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
-          <MainNav/>
+          <MainNav />
           {status !== "authenticated" ? null : (
             <UserAccountNav
               user={{

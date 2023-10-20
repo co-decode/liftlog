@@ -17,13 +17,13 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  const {data: session} = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter();
   useEffect(() => {
-    if (session) {
+    if (session && status === "authenticated") {
       router.push('/dashboard');
     }
-  }, [session, router]);
+  }, [session, router, status]);
   return (
     <div className="min-h-screen grid grid-rows-[min-content_1fr]">
       <header className="container z-40 bg-background">

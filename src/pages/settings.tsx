@@ -16,14 +16,15 @@ import { AppRouter } from "@/server/routers/_app";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { useLockBody } from "@/hooks/use-lock-body";
-import { cn } from "@/lib/utils";
+import { z } from "zod";
+import { Icons } from "@/components/icons";
 
 const { footerItems } = dashboardConfig;
 
 export default function Settings() {
   const { data } = useSession()
   const { passwordSet, setPasswordSet } = useAuth()
-  const [warning, setWarning] = useState<boolean>(true)
+  const [warning, setWarning] = useState<boolean>(false)
   const [passField, setPassField] = useState<string>("")
   const passFieldRef = useRef<HTMLInputElement | null>()
 
@@ -34,20 +35,20 @@ export default function Settings() {
   })
 
   function handleSetPassword() {
-    if (!passField) 
+    if (!passField)
       return toast({
         title: "Error",
         description: "Please ensure that you have entered a valid password.",
         variant: "destructive",
       });
 
-   updatePassword.mutateAsync({
-     userId: data?.user.id,
-     password: passField
-   })
-    
+    updatePassword.mutateAsync({
+      userId: data?.user.id,
+      password: passField
+    })
+
     setPassField("")
-    if (passwordSet) 
+    if (passwordSet)
       setWarning(false)
     if (passFieldRef.current && setPasswordSet) {
       passFieldRef.current.value = ""
@@ -59,8 +60,8 @@ export default function Settings() {
       description: "The password has been successfully set!",
       variant: "default",
     })
-
   }
+
 
   return (
     <Layout footerItems={footerItems}>
@@ -81,27 +82,19 @@ export default function Settings() {
                 type="password"
                 ref={(e) => passFieldRef.current = e}
                 onChange={e => setPassField(e.target.value)}
+                disabled={data?.user.email === "trial@liftlog.com"}
+                placeholder={data?.user.email ? "Disabled for Trial Account" : ""}
               />
             </Label>
-            <Button className="w-full" 
+            <Button className="w-full"
               onClick={() => passwordSet ? setWarning(true) : handleSetPassword()}
-              disabled={!passField}
+              disabled={!passField || data?.user.email === "trial@liftlog.com"}
             >
               {passwordSet ? "Update Password" : "Enable Credentials"}
             </Button>
           </CardContent>
         </Card>
-        <Card className="w-[300px] flex justify-between items-center">
-          <CardHeader className="text-sm font-medium leading-none">
-            Profile Picture
-          </CardHeader>
-          <CardContent className="p-0 mr-5">
-            <Avatar className="">
-              <AvatarImage className="" />
-              <AvatarFallback className="uppercase">{data?.user.email[0] || null}</AvatarFallback>
-            </Avatar>
-          </CardContent>
-        </Card>
+        <AvatarPreference />
 
       </div>
       <Toaster />
@@ -122,15 +115,15 @@ function Preferences({ }: PreferencesProps) {
   const { data } = useSession()
   const { weightUnit, setWeightUnit, currentProgram, setCurrentProgram, programs } = useAuth()
   const [currentProgramForm, setCurrentProgramForm] =
-    useState<Partial<Form>>({ 
-      startDate: currentProgram?.startDate, 
+    useState<Partial<Form>>({
+      startDate: currentProgram?.startDate,
       programId: currentProgram?.programId,
       programName: currentProgram?.programName,
     })
 
   useEffect(() => {
-    setCurrentProgramForm({ 
-      startDate: currentProgram?.startDate, 
+    setCurrentProgramForm({
+      startDate: currentProgram?.startDate,
       programId: currentProgram?.programId,
       programName: currentProgram?.programName,
     })
@@ -224,7 +217,7 @@ function Preferences({ }: PreferencesProps) {
                 ? `${currentProgram.programName}|${currentProgram.programId}`
                 : undefined
               }
-              value={currentProgramForm.programName 
+              value={currentProgramForm.programName
                 ? `${currentProgramForm.programName}|${currentProgramForm.programId}`
                 : ""
               }
@@ -266,7 +259,7 @@ function Preferences({ }: PreferencesProps) {
           <Button
             onClick={submitCurrentProgram}
             disabled={
-              currentProgramForm?.programId === currentProgram?.programId && 
+              currentProgramForm?.programId === currentProgram?.programId &&
               currentProgramForm?.startDate === currentProgram?.startDate
             }
           >
@@ -276,6 +269,92 @@ function Preferences({ }: PreferencesProps) {
       </Card>
     </>
   )
+}
+
+interface AvatarPreferenceProps {
+}
+
+function AvatarPreference({ }: AvatarPreferenceProps) {
+  const { data, update } = useSession()
+  const [imageField, setImageField] = useState<string>("")
+  const [validImage, setValidImage] = useState<boolean>(false)
+  const imageFieldRef = useRef<HTMLInputElement | null>()
+  const updateImage = trpc.users.updateImage.useMutation({
+    onSuccess() {
+      console.log("Image successfully updated!")
+    },
+    onSettled(data) {
+      if (!data) {
+        console.error("Image was not updated.")
+        return toast({
+          title: "Error",
+          description: "Please ensure that you have entered the correct URL.",
+          variant: "destructive",
+        });
+      }
+
+      update({ image: data })
+
+      return toast({
+        title: "Success!",
+        description: "The Image has been successfully set!",
+        variant: "default",
+      })
+
+    }
+
+  })
+
+  useEffect(() => {
+    const validURL = z.string().regex(/\.(jpg|jpeg|png)$/)
+    const result = validURL.safeParse(imageField)
+    setValidImage(result.success)
+  }, [imageField])
+
+  function handleSetImage() {
+    updateImage.mutateAsync({
+      userId: data?.user.id,
+      image: imageField
+    },)
+  }
+
+  return (
+    <Card className="w-[300px]">
+      <CardHeader className="text-sm font-medium leading-none flex flex-row justify-between items-center">
+        <div className="flex gap-3">
+          <span>Profile Picture</span>
+          {updateImage.isLoading && <Icons.spinner className="h-4 w-4 animate-spin" />}
+        </div>
+        <Avatar className="!m-0">
+          {data?.user.image ? (
+            <AvatarImage className="" src={data?.user.image} />
+          ) : (
+            <AvatarFallback className="uppercase">{data?.user.email[0] || null}</AvatarFallback>
+          )}
+
+        </Avatar>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        <Label>
+          Image URL
+          <Input
+            className="mt-3"
+            ref={(e) => imageFieldRef.current = e}
+            onChange={e => setImageField(e.target.value)}
+            disabled={data?.user.email === "trial@liftlog.com"}
+            placeholder={data?.user.email ? "Disabled for Trial Account" : ""}
+          />
+        </Label>
+        <Button className="w-full"
+          onClick={() => handleSetImage()}
+          disabled={!validImage || data?.user.email === "trial@liftlog.com"}
+        >
+          Set Image URL
+        </Button>
+      </CardContent>
+    </Card>
+  )
+
 }
 
 interface PasswordAlertProps {

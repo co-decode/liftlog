@@ -35,7 +35,7 @@ export default function Dashboard() {
     const today = new Date(Date.now()).setHours(0, 0, 0, 0) // ! Remove offset, it was used for testing
     const daysSinceStart =
       (today - currentProgram.startDate.getTime()) / (1000 * 60 * 60 * 24)
-    const splitIndex = daysSinceStart % program.splitLength
+    const splitIndex = Math.floor(daysSinceStart) % program.splitLength
     const session = program.programSessions
       .find(ps => ps.splitIndices
         .some(si => si.index === splitIndex))
@@ -127,17 +127,17 @@ export default function Dashboard() {
             </Button>
           </CardContent>
         </Card>
-        {programs?.length === 0 
-        ?
-        <div className="flex flex-col items-center text-destructive gap-3">
-          <p className="text-sm font-medium leading-none">
-            Build a program to get started!
-          </p>
-          <Link href="/programs">
-          <Icons.dumbbell className="w-8 h-8" />
-          </Link>
-        </div>
-        : null
+        {programs?.length === 0
+          ?
+          <div className="flex flex-col items-center text-destructive gap-3">
+            <p className="text-sm font-medium leading-none">
+              Build a program to get started!
+            </p>
+            <Link href="/programs">
+              <Icons.dumbbell className="w-8 h-8" />
+            </Link>
+          </div>
+          : null
         }
 
       </div>

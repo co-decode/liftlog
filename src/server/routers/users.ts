@@ -15,6 +15,7 @@ export const usersRouter = router({
           password: true,
           name: true,
           id: true,
+          image: true,
         }
       })
     }),
@@ -75,7 +76,7 @@ export const usersRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const {userId: id, password} = input;
+      const { userId: id, password } = input;
 
       const salt = await bcrypt.genSalt(10)
       const hashedPassword = await bcrypt.hash(password, salt)
@@ -84,8 +85,34 @@ export const usersRouter = router({
         where: { id },
         data: { password: hashedPassword }
       })
-    })
+    }),
+  updateImage: procedure
+    .input(
+      z.object({
+        userId: z.number().int(),
+        image: z.string().url()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId: id, image } = input;
 
+      const response = await fetch(image)
+      // Check if the response status is in the 200-299 range (success)
+      if (response.ok) {
+        // Check the content type of the response
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.startsWith("image/")) {
+          const result = await prisma.user.update({
+            where: { id },
+            data: { image }
+          })
+          return result.image
+          // It's a valid image URL
+        }
+      }
+      // The URL was invalid
+      return null
+    }),
 })
 
 export const caller = usersRouter.createCaller({})
