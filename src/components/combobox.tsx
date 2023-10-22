@@ -57,10 +57,6 @@ const frameworks = [
     label: "french press",
   },
   {
-    value: "dragon flag",
-    label: "dragon flag",
-  },
-  {
     value: "incline dumbbell press",
     label: "incline dumbbell press",
   },
@@ -84,6 +80,31 @@ const frameworks = [
     value: "push up",
     label: "push up",
   },
+  {
+    value: "barbell row",
+    label: "barbell row",
+  },
+  {
+    value: "dumbbell row",
+    label: "dumbbell row",
+  },
+  {
+    value: "lateral raise",
+    label: "lateral raise",
+  },
+  {
+    value: "front raise",
+    label: "front raise",
+  },
+  {
+    value: "seated press",
+    label: "seated press",
+  },
+  {
+    value: "skullcrusher",
+    label: "skullcrusher",
+  },
+
 ];
 
 interface ComboboxProps {
