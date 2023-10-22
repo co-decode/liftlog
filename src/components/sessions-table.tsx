@@ -2,7 +2,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   getFilteredRowModel,
-  paginationState,
+  PaginationState,
   getPaginationRowModel,
 
   Row,
@@ -34,8 +34,11 @@ import { useAuth } from "./auth-and-context";
 import { useEffect, useState } from "react";
 import DateRangePicker from "./date-range-picker";
 import { Icons } from "./icons";
-import { DateRange } from "react-day-picker";
+//import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const SetSchema = z.object({
   reps: z.number(),
@@ -106,6 +109,9 @@ export function DataTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
+    initialState: {
+      pagination: { pageSize: 5 }
+    },
     state: {
       columnFilters,
       sorting
@@ -118,9 +124,6 @@ export function DataTable({
   function handleClick(row: Row<Schema>) {
     console.log(row.original)
   }
-  useEffect(() => {
-    table.setPageSize(5)
-  }, [table])
 
   return (
     <div className={"grid justify-center gap-3 " + className}>
@@ -207,68 +210,76 @@ export function DataTable({
           )}
         </TableBody>
       </Table>
-      <div className="flex items-center gap-2">
-        <button
-          className="border rounded p-1"
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {'<<'}
-        </button>
-        <button
-          className="border rounded p-1"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {'<'}
-        </button>
-        <button
-          className="border rounded p-1"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {'>'}
-        </button>
-        <button
-          className="border rounded p-1"
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-        >
-          {'>>'}
-        </button>
-        <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
-            {table.getPageCount()}
-          </strong>
-        </span>
-        <span className="flex items-center gap-1">
-          | Go to page:
-          <input
-            type="number"
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              table.setPageIndex(page)
-            }}
-            className="border p-1 rounded w-16"
-          />
-        </span>
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={e => {
-            table.setPageSize(Number(e.target.value))
-          }}
-        >
-          {[10, 20, 30, 40, 50].map(pageSize => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex gap-1">
+          <Button
+            variant={"outline"}
+            className="border rounded p-1"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<<'}
+          </Button>
+          <Button
+            variant={"outline"}
+            className="border rounded p-1"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<'}
+          </Button>
+          <Button
+            variant={"outline"}
+            className="border rounded p-1"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>'}
+          </Button>
+          <Button
+            variant={"outline"}
+            className="border rounded p-1"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>>'}
+          </Button>
+          <span className="flex items-center gap-1">
+            <div>Page</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{' '}
+              {table.getPageCount()}
+            </strong>
+          </span>
+        </div>
+        <div>
+          <span className="flex items-center gap-1">
+            Go to page:
+            <Input
+              type="number"
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={e => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0
+                table.setPageIndex(page)
+              }}
+              className="border p-1 rounded w-16"
+            />
+          </span>
+        </div>
+        <Select onValueChange={v => table.setPageSize(Number(v))} value={String(table.getState().pagination.pageSize)}>
+          <SelectTrigger className="w-[12ch]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {[5, 8, 10, 12, 15].map(pageSize => (
+              <SelectItem key={pageSize} value={String(pageSize)}>
+                Show {pageSize}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-    </div>
+    </div >
   )
 }
 function ExerciseFilter() {
