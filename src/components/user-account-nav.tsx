@@ -15,13 +15,16 @@ import { Icons } from "@/components/icons";
 import { UserAvatar } from "@/components/user-avatar";
 import { ModeToggle } from "./mode-toggle";
 import { useAuth } from "./auth-and-context";
+import { Dispatch, SetStateAction } from "react";
+import { Button } from "./ui/button";
 //import { useRouter } from "next/router";
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Pick<User, "name" | "image" | "email">;
+  setWarning: Dispatch<SetStateAction<string>> | undefined
 }
 
-export function UserAccountNav({ user }: UserAccountNavProps) {
+export function UserAccountNav({ user, setWarning }: UserAccountNavProps) {
   //const router = useRouter()
   const context = useAuth()
 
@@ -35,6 +38,15 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
     setCurrentProgram!(undefined)
     setWorkoutSummary!(undefined)
     setSelectedProgramSession!(undefined)
+  }
+  function handleNavigation(
+    href: string,
+    e: React.MouseEvent<HTMLButtonElement | MouseEvent>
+  ) {
+    if (setWarning) {
+      e.preventDefault();
+      setWarning(href);
+    }
   }
   return (
     <DropdownMenu>

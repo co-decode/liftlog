@@ -91,6 +91,7 @@ export default function AuthenticatedLayout({
                 image: session?.user?.image,
                 email: session?.user?.email,
               }}
+              setWarning={setWarning}
             />
           )}
         </div>

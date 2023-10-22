@@ -8,13 +8,14 @@ import { trpc } from "../utils/trpc";
 import { SessionProvider } from "next-auth/react";
 import ContextProvider from "@/components/auth-and-context"
 import { Inter } from "next/font/google";
+import { ReactNode } from "react";
 
 const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-const App = ({
+export const App = ({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps<{ session: Session }>) => {
@@ -26,7 +27,7 @@ const App = ({
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
-        <link rel="shortcut icon" href="/favicon.svg"/>
+        <link rel="shortcut icon" href="/favicon.svg" />
       </Head>
       <style jsx global>
         {`
@@ -38,10 +39,46 @@ const App = ({
 
       <SessionProvider session={session}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <ContextProvider>
-          <Component {...pageProps} />
-        </ContextProvider>
+          <ContextProvider>
+            <Component {...pageProps} />
+          </ContextProvider>
         </ThemeProvider>
+      </SessionProvider>
+    </>
+  );
+};
+
+interface AppWrapperProps {
+  children: ReactNode,
+  session: Session
+}
+
+export const AppWrapper = ({
+  children,
+  session,
+}: AppWrapperProps) => {
+  return (
+    <>
+      <Head>
+        <title>LiftLog</title>
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width"
+        />
+        <link rel="shortcut icon" href="/favicon.svg" />
+      </Head>
+      <style jsx global>
+        {`
+          html {
+            font-family: ${fontSans.style.fontFamily};
+          }
+        `}
+      </style>
+
+      <SessionProvider session={session}>
+        <ContextProvider>
+          {children}
+        </ContextProvider>
       </SessionProvider>
     </>
   );

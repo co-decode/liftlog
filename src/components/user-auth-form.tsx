@@ -128,13 +128,17 @@ export function UserAuthForm({ register, className, ...props }: UserAuthFormProp
               </p>
             )}
           </div>
-          <button className={cn(buttonVariants())} disabled={isLoading}>
+          <button className={cn(buttonVariants())} disabled={isLoading}
+            aria-label="disableable"
+          >
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
             Sign In with Credentials
           </button>
-          <button role="button" onClick={e => onSubmitTrialCreds(e)} className={cn(buttonVariants({ variant: "destructive" }))} disabled={isLoading}>
+          <button role="button" onClick={e => onSubmitTrialCreds(e)} className={cn(buttonVariants({ variant: "destructive" }))} disabled={isLoading}
+            aria-label="disableable"
+          >
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}

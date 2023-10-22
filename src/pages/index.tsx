@@ -27,9 +27,10 @@ export default function IndexPage() {
     <>
       <header className="container z-40 bg-background">
         <div className="flex h-20 items-center justify-between py-6">
-          <MainNav/>
+          <MainNav />
           <nav>
             <Link
+              aria-label="disableable"
               href="/login"
               className={cn(
                 buttonVariants({ variant: "secondary", size: "sm" }),
@@ -51,11 +52,13 @@ export default function IndexPage() {
         </p>
         <div className="space-x-4">
           <Link
+            aria-label="disableable"
             href="/login"
             className={cn(buttonVariants({ size: "lg" }), status === "loading" && "pointer-events-none")}>
             Get Started
           </Link>
           <Link
+            aria-label="disableable"
             href={"https://github.com/co-decode/liftlog"}
             target="_blank"
             rel="noreferrer"
@@ -65,6 +68,7 @@ export default function IndexPage() {
           </Link>
         </div>
         <Link href="/login"
+          aria-label="disableable"
           className={cn(buttonVariants({ variant: "destructive", size: "lg" }),
             status === "loading" && "pointer-events-none",
             "w-[271px]")}
@@ -81,7 +85,9 @@ export default function IndexPage() {
             View a demonstration of LiftLog&apos;s features.
           </p>
           <Link
+            aria-label="disableable"
             href="https://cody-ross.net/liftlog"
+            className={cn(status === "loading" && "pointer-events-none")}
             target="_blank"
           >
             <Button
@@ -93,7 +99,7 @@ export default function IndexPage() {
             </Button>
           </Link>
         </div>
-      </section>
+      </section >
       <section
         id="features"
         className="container space-y-6 bg-slate-50 py-6 dark:bg-transparent md:py-12 lg:py-24"

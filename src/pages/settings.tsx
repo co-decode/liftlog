@@ -83,7 +83,7 @@ export default function Settings() {
                 ref={(e) => passFieldRef.current = e}
                 onChange={e => setPassField(e.target.value)}
                 disabled={data?.user.email === "trial@liftlog.com"}
-                placeholder={data?.user.email ? "Disabled for Trial Account" : ""}
+                placeholder={data?.user.email === "trial@liftlog.com" ? "Disabled for Trial Account" : ""}
               />
             </Label>
             <Button className="w-full"
@@ -342,7 +342,7 @@ function AvatarPreference({ }: AvatarPreferenceProps) {
             ref={(e) => imageFieldRef.current = e}
             onChange={e => setImageField(e.target.value)}
             disabled={data?.user.email === "trial@liftlog.com"}
-            placeholder={data?.user.email ? "Disabled for Trial Account" : ""}
+            placeholder={data?.user.email === "trial@liftlog.com" ? "Disabled for Trial Account" : ""}
           />
         </Label>
         <Button className="w-full"

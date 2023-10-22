@@ -141,7 +141,7 @@ export function UserRegForm({
           {isNetlifyLoading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Icons.netlify className="text-white mr-2 h-4 w-4" />
+            <Icons.netlify className="mr-2 h-4 w-4" />
           )}{" "}
           Netlify
         </button>
