@@ -1,0 +1,347 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Index Page Match Snapshot 1`] = `
+<DocumentFragment>
+   
+  <div
+    class="min-h-screen grid grid-rows-[min-content_1fr]"
+  >
+    <header
+      class="container z-40 bg-background"
+    >
+      <div
+        class="flex h-16 items-center justify-between py-4"
+      >
+        <div
+          class="flex gap-6 md:gap-10"
+        >
+          <a
+            class="items-center space-x-2 flex"
+            href="/dashboard"
+          >
+            <svg
+              class="lucide lucide-dumbbell"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m6.5 6.5 11 11"
+              />
+              <path
+                d="m21 21-1-1"
+              />
+              <path
+                d="m3 3 1 1"
+              />
+              <path
+                d="m18 22 4-4"
+              />
+              <path
+                d="m2 6 4-4"
+              />
+              <path
+                d="m3 10 7-7"
+              />
+              <path
+                d="m14 21 7-7"
+              />
+            </svg>
+            <span
+              class="font-bold inline-block"
+            >
+              LiftLog
+            </span>
+          </a>
+        </div>
+        <nav>
+          <a
+            class="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 rounded-md px-3"
+            href="/"
+          >
+            <svg
+              class="mr-1 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="15 18 9 12 15 6"
+              />
+            </svg>
+            Back
+          </a>
+        </nav>
+      </div>
+    </header>
+    <div
+      class="container flex w-screen flex-col items-center justify-center"
+    >
+      <div
+        class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]"
+      >
+        <div
+          class="flex flex-col space-y-2 text-center"
+        >
+          <svg
+            class="mx-auto h-8 w-8"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6.5 6.5 11 11"
+            />
+            <path
+              d="m21 21-1-1"
+            />
+            <path
+              d="m3 3 1 1"
+            />
+            <path
+              d="m18 22 4-4"
+            />
+            <path
+              d="m2 6 4-4"
+            />
+            <path
+              d="m3 10 7-7"
+            />
+            <path
+              d="m14 21 7-7"
+            />
+          </svg>
+          <h1
+            class="text-2xl font-semibold tracking-tight"
+          >
+            Welcome back
+          </h1>
+          <p
+            class="text-sm text-muted-foreground"
+          >
+            Enter your credentials to sign in
+          </p>
+        </div>
+        <div
+          class="grid gap-6"
+        >
+          <form>
+            <div
+              class="grid gap-2"
+            >
+              <div
+                class="grid gap-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sr-only"
+                  for="identifier"
+                >
+                  Email
+                </label>
+                <input
+                  autocapitalize="none"
+                  autocorrect="off"
+                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="identifier"
+                  name="identifier"
+                  placeholder="Email"
+                  type="text"
+                />
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sr-only"
+                  for="email"
+                >
+                  Password
+                </label>
+                <input
+                  autocapitalize="none"
+                  autocorrect="off"
+                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="password"
+                  name="password"
+                  placeholder="Password"
+                  type="password"
+                />
+              </div>
+              <button
+                aria-label="disableable"
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4"
+              >
+                Sign In with Credentials
+              </button>
+              <button
+                aria-label="disableable"
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 py-2 px-4"
+                role="button"
+              >
+                Sign In with a Trial Account
+              </button>
+            </div>
+          </form>
+          <div
+            class="relative"
+          >
+            <div
+              class="absolute inset-0 flex items-center"
+            >
+              <span
+                class="w-full border-t"
+              />
+            </div>
+            <div
+              class="relative flex justify-center text-xs uppercase"
+            >
+              <span
+                class="bg-background px-2 text-muted-foreground"
+              >
+                Or continue with Email
+              </span>
+            </div>
+          </div>
+          <div
+            class="grid gap-6"
+          >
+            <form>
+              <div
+                class="grid gap-2"
+              >
+                <div
+                  class="grid gap-2"
+                >
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sr-only"
+                    for="email"
+                  >
+                    Email
+                  </label>
+                  <input
+                    autocapitalize="none"
+                    autocomplete="email"
+                    autocorrect="off"
+                    class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    id="email"
+                    name="email"
+                    placeholder="name@example.com"
+                    type="email"
+                  />
+                </div>
+                <button
+                  class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4"
+                >
+                  Sign In with Email
+                </button>
+              </div>
+            </form>
+            <div
+              class="relative"
+            >
+              <div
+                class="absolute inset-0 flex items-center"
+              >
+                <span
+                  class="w-full border-t"
+                />
+              </div>
+              <div
+                class="relative flex justify-center text-xs uppercase"
+              >
+                <span
+                  class="bg-background px-2 text-muted-foreground"
+                >
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            <div
+              class="flex flex-col gap-2"
+            >
+              <button
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="mr-2 h-4 w-4"
+                  data-icon="github"
+                  data-prefix="fab"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 496 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"
+                    fill="currentColor"
+                  />
+                </svg>
+                 Github
+              </button>
+              <button
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-accent hover:text-accent-foreground h-10 p-0"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="mr-2 h-4 w-4"
+                  data-icon="netlify"
+                  fill="currentColor"
+                  focusable="false"
+                  height="800px"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="800px"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22.579 11.36c0.151 0.077 0.291 0.181 0.405 0.307l3.131-1.396-2.921-2.896-0.657 3.943zM16.079 8.729c0.156 0.229 0.249 0.489 0.281 0.765l4.661 1.975c0.14-0.109 0.301-0.188 0.473-0.235l0.765-4.735-2.839-2.979-3.343 5.135zM31.989 16.047l-4.995-4.995-3.401 1.391 8.355 3.552c0 0 0.073 0.052 0.041 0.052zM31.156 16.86l-8.020-3.428c-0.224 0.297-0.563 0.495-0.933 0.541l-0.859 5.277c0.255 0.26 0.401 0.609 0.401 0.973l4.843 1.016 4.443-4.412v-0.083zM20.531 12.333l-4.353-1.855c-0.308 0.469-0.833 0.745-1.391 0.724h-0.265l-3.609 5.568 9.635-4.172v0.011c-0.005-0.073-0.005-0.145 0-0.224 0.005-0.016 0-0.036-0.016-0.052zM25.823 22.079l-4.26-0.881c-0.161 0.209-0.369 0.365-0.615 0.459l-1.016 6.297 5.917-5.865c0 0-0.011 0.032-0.027 0.032zM19.864 21.645c-0.411-0.167-0.713-0.52-0.823-0.948l-7.932-1.629-0.115 0.183 7.199 10.411 0.432-0.427 1.224-7.563c0 0 0.041 0.031 0.015 0.016zM11.276 18.109l7.839 1.615c0.229-0.401 0.64-0.661 1.099-0.697l0.849-5.188-0.183-0.156-9.744 4.177c0.052 0.077 0.099 0.161 0.14 0.249zM7.989 19.416l-0.167-0.165-3.38 1.389 1.64 1.631 1.865-2.896zM10.219 19.948c-0.235 0.109-0.495 0.161-0.749 0.167-0.209 0-0.407-0.032-0.605-0.099l-2.057 2.995 9.021 8.937 1.588-1.579zM8.953 16.427c0.135-0.015 0.276-0.015 0.416 0 0.152-0.020 0.308-0.020 0.459 0l3.645-5.667c-0.285-0.296-0.443-0.692-0.443-1.099-0.015-0.12-0.015-0.245 0-0.364l-4.427-2.047-3.563 3.468zM9.355 6.557l4.317 1.839c0.312-0.26 0.708-0.396 1.115-0.38 0.177 0.005 0.353 0.031 0.525 0.083l3.371-5.26-2.787-2.787-6.541 6.421c0 0-0.011 0.068 0 0.084zM7.74 17.443c0.088-0.161 0.197-0.312 0.323-0.448l-3.693-5.511-4.369 4.245zM7.391 18.375l-6.683-1.396 2.937 2.98 3.704-1.573z"
+                  />
+                </svg>
+                 Netlify
+              </button>
+            </div>
+          </div>
+        </div>
+        <p
+          class="px-8 pb-4 text-center text-sm text-muted-foreground"
+        >
+          <a
+            class="hover:text-brand underline underline-offset-4"
+            href="/register"
+          >
+            Don't have an account? Sign Up
+          </a>
+        </p>
+      </div>
+    </div>
+    <div
+      aria-label="Notifications (F8)"
+      role="region"
+      style="pointer-events: none;"
+      tabindex="-1"
+    >
+      <ol
+        class="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
+        tabindex="-1"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
