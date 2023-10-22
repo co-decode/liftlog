@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
+import DateRangePicker from "@/components/date-range-picker";
 const { footerItems } = analysisConfig;
 
 export type Accumulators = "TOTALREPS" | "AVERAGEWEIGHT" | "MAXIMUMWEIGHT" | "TOTALWEIGHT" | "TOTALSETS"
@@ -67,7 +67,9 @@ function getAverageWeight(dataSessions: DataSession[], weightUnit: "KG" | "LB") 
         totalReps += s.reps
         return a + s.reps * s.weight
       }, 0), 0) * (weightUnit === "KG" ? 1 : 2.205)
-    return [...a, [sess.date, totalWeight / totalReps]]
+    const averageWeight = Number((totalWeight / totalReps).toFixed(2))
+
+    return [...a, [sess.date, averageWeight]]
   }, []) as [Date, number][]
 }
 
@@ -79,6 +81,7 @@ export default function Analysis() {
   const [selectExercise, setSelectExercise] = useState<string>();
   const [currentExercises, setCurrentExercises] = useState<string[]>([]);
   const [accumulator, setAccumulator] = useState<Accumulators>("TOTALREPS")
+  const [dateRange, setDateRange] = useState<[number, number]>([0, 999999999999999])
 
   const dataSessions = useMemo(() => {
     const sessions = exerciseSessions?.reduceRight((a: { date: Date, exercises: ReducedSets }[], sess) => {
@@ -86,10 +89,11 @@ export default function Analysis() {
         if (!currentExercises.includes(ex.name)) return a;
         return [...a, ex.sets]
       }, [])
-      return exercises.length ? [...a, { date: sess.date, exercises }] : a
+      const inDate = sess.date.getTime() > dateRange[0] && sess.date.getTime() < dateRange[1]
+      return exercises.length && inDate ? [...a, { date: sess.date, exercises }] : a
     }, [])
     return sessions?.length ? sessions : undefined
-  }, [currentExercises, exerciseSessions])
+  }, [currentExercises, exerciseSessions, dateRange])
 
   const data = useMemo(() => {
     if (!dataSessions) return
@@ -148,28 +152,33 @@ export default function Analysis() {
             </Button>
           </div>
           {data
-            ? <LineChart height={300} width={280} data={data} type={accumulator}/>
+            ? <LineChart height={300} width={280} data={data} type={accumulator} />
             : <Card className="h-[300px] w-[280px] grid place-items-center">
               <CardHeader className="text-lg font-semibold">
                 Add an Exercise
               </CardHeader>
             </Card>
           }
-          <div className="mt-5">
-          <Label className="text-sm font-medium leading-none">
-            Accumulation
-            <Select onValueChange={handleChange} disabled={!currentExercises.length}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Total Reps" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="TOTALREPS">Total Reps</SelectItem>
-                <SelectItem value="AVERAGEWEIGHT">Average Weight</SelectItem>
-                <SelectItem value="MAXIMUMWEIGHT">Maximum Weight</SelectItem>
-                <SelectItem value="TOTALWEIGHT">Total Weight</SelectItem>
-                <SelectItem value="TOTALSETS">Total Sets</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="mt-5 grid gap-3">
+            <Label className="text-sm font-medium leading-none">
+              Accumulation
+              <Select onValueChange={handleChange} disabled={!currentExercises.length}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Total Reps" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="TOTALREPS">Total Reps</SelectItem>
+                  <SelectItem value="AVERAGEWEIGHT">Average Weight</SelectItem>
+                  <SelectItem value="MAXIMUMWEIGHT">Maximum Weight</SelectItem>
+                  <SelectItem value="TOTALWEIGHT">Total Weight</SelectItem>
+                  <SelectItem value="TOTALSETS">Total Sets</SelectItem>
+                </SelectContent>
+              </Select>
+            </Label>
+            <Label className="grid gap-1">
+              <span>Date Range</span>
+
+              <DateRangePicker dateState={dateRange} setDateState={setDateRange} />
             </Label>
           </div>
 

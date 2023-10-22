@@ -26,15 +26,15 @@ const LineChart = ({ width, height, data, type }: LineChartProps) => {
       .attr('overflow', 'visible')
 
     const xScale = scaleTime()
-      .domain([data[0][0], data[data.length-1][0]])
+      .domain([data[0][0], data[data.length - 1][0]])
       //.nice()
-      .range([0,width])
+      .range([0, width])
 
     const yScale = scaleLinear()
       .domain([min(data, (d) => d[1]) as number, max(data, (d) => d[1]) as number])
       .range([height, 0])
 
-    const lineGenerator = line<[Date,number]>()
+    const lineGenerator = line<[Date, number]>()
       .x((d) => xScale(d[0]))
       .y((d) => yScale(d[1]))
       .curve(curveLinear);
@@ -51,14 +51,15 @@ const LineChart = ({ width, height, data, type }: LineChartProps) => {
     const formatTime = timeFormat('%e/%m')
 
     const xAxis = axisBottom(xScale)
-      .tickValues(data.map(d => d[0]))
+      //.tickValues(data.map(d => d[0]))
+      .ticks(6)
       .tickFormat(d => formatTime(d as Date))
 
     const yAxis = axisLeft(yScale)
       .ticks(data.length)
       .tickFormat(format("d"))
-      //.tickFormat((d) => String(Math.round(d as number)))
-      
+    //.tickFormat((d) => String(Math.round(d as number)))
+
 
     svg
       .append('g')
@@ -97,9 +98,9 @@ const LineChart = ({ width, height, data, type }: LineChartProps) => {
       const suffix =
         ["TOTALWEIGHT", "MAXIMUMWEIGHT", "AVERAGEWEIGHT"].includes(type)
           ? weightUnit
-        : type === "TOTALSETS"
-          ? "sets"
-          : "reps"
+          : type === "TOTALSETS"
+            ? "sets"
+            : "reps"
 
       popover
         .html(`<div>${closestPoint[1]} ${suffix}</div><div>${formatTime(closestPoint[0])}</div>`)
@@ -118,7 +119,7 @@ const LineChart = ({ width, height, data, type }: LineChartProps) => {
       highlight.style('opacity', 0);
     }
 
-    function findClosestPoint(x:number) {
+    function findClosestPoint(x: number) {
       return data.reduce((a, b) => {
         const distanceA = Math.abs(x - (xScale(a[0])));
         const distanceB = Math.abs(x - (xScale(b[0])));

@@ -14,11 +14,13 @@ import { Input } from './ui/input';
 import { ColumnFiltersState } from '@tanstack/react-table';
 
 interface DateRangePickerProps {
-  columnFilters: ColumnFiltersState
-  setColumnFilters: Dispatch<SetStateAction<ColumnFiltersState>>
+  columnFilters?: ColumnFiltersState
+  setColumnFilters?: Dispatch<SetStateAction<ColumnFiltersState>>
+  dateState?: [number, number]
+  setDateState?: Dispatch<SetStateAction<[number, number]>>
 }
 
-export default function DateRangePicker({ columnFilters, setColumnFilters }: DateRangePickerProps) {
+export default function DateRangePicker({ columnFilters, setColumnFilters, dateState, setDateState }: DateRangePickerProps) {
   const [selectedRange, setSelectedRange] = useState<DateRange>();
   const [fromValue, setFromValue] = useState<string>('');
   const [toValue, setToValue] = useState<string>('');
@@ -67,14 +69,23 @@ export default function DateRangePicker({ columnFilters, setColumnFilters }: Dat
   };
 
   function handleClose(open: boolean) {
-    if (!open && selectedRange?.from && selectedRange.to)
-      setColumnFilters([
-        ...columnFilters,
-        {
-          id: "date",
-          value: [selectedRange?.from?.getTime(), selectedRange?.to?.getTime()]
-        }
-      ])
+    if (setColumnFilters && columnFilters) {
+      if (!open && selectedRange?.from && selectedRange.to)
+        setColumnFilters([
+          ...columnFilters,
+          {
+            id: "date",
+            value: [selectedRange?.from?.getTime(), selectedRange?.to?.getTime()]
+          }
+        ])
+    }
+    else if (dateState && setDateState) {
+      if (!open && selectedRange?.from && selectedRange.to)
+        setDateState([
+          selectedRange.from.getTime(),
+          selectedRange.to.getTime()
+        ])
+    }
   }
 
   return (
