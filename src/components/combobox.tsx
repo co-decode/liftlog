@@ -100,10 +100,6 @@ const frameworks = [
     value: "seated press",
     label: "seated press",
   },
-  {
-    value: "skullcrusher",
-    label: "skullcrusher",
-  },
 
 ];
 
